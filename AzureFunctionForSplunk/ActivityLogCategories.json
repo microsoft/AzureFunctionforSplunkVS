@@ -1,0 +1,10 @@
+﻿{
+  "administrative": "amal:administrative",
+  "ascrecommendation": "amal:asc:recommendation",
+  "servicehealth": "amal:servicehealth",
+  "resourcehealth": "amal:resourcehealth",
+  "autoscalesettings": "amal:autoscalesettings",
+  "ascalert": "amal:asc:alert",
+  "insights": "amal:insights",
+  "security": "amal:security"
+}
