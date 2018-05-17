@@ -1,0 +1,220 @@
+{
+    "records": [
+        {
+            "time": "2017-12-14T19:12:39.3113035Z",
+            "resourceId": "/SUBSCRIPTIONS/743F6ED6-83A8-46F0-822D-EA93B953952D/RESOURCEGROUPS/LINUXDEVRG/PROVIDERS/MICROSOFT.LOGIC/WORKFLOWS/GOLIVE/TRIGGERS/REQUEST",
+            "operationName": "MICROSOFT.LOGIC/WORKFLOWS/TRIGGERS/LISTCALLBACKURL/ACTION",
+            "category": "Action",
+            "resultType": "Start",
+            "resultSignature": "Started.",
+            "durationMs": 0,
+            "callerIpAddress": "213.86.212.84",
+            "correlationId": "117fa65b-f32b-4c6b-8e45-56d9afd1155b",
+            "identity": {
+                "authorization": {
+                    "scope": "/subscriptions/743f6ed6-83a8-46f0-822d-ea93b953952d/resourcegroups/linuxDevRg/providers/Microsoft.Logic/workflows/golive/triggers/request",
+                    "action": "Microsoft.Logic/workflows/triggers/listCallbackUrl/action",
+                    "evidence": {
+                        "role": "Subscription Admin"
+                    }
+                },
+                "claims": {
+                    "aud": "https://management.core.windows.net/",
+                    "iss": "https://sts.windows.net/72f988bf-86f1-41af-91ab-2d7cd011db47/",
+                    "iat": "1513278448",
+                    "nbf": "1513278448",
+                    "exp": "1513282348",
+                    "_claim_names": "{\"groups\":\"src1\"}",
+                    "_claim_sources": "{\"src1\":{\"endpoint\":\"https://graph.windows.net/72f988bf-86f1-41af-91ab-2d7cd011db47/users/88a79efd-2430-41ba-879c-7ffd36bb1553/getMemberObjects\"}}",
+                    "http://schemas.microsoft.com/claims/authnclassreference": "1",
+                    "aio": "ASQA2/8GAAAAxqf6su8yQsE41kZGzgLXzzVeUanFAW8YlekEHCueS4k=",
+                    "http://schemas.microsoft.com/claims/authnmethodsreferences": "rsa,mfa",
+                    "appid": "c44b4083-3bb0-49c1-b47d-974e53cbdf3c",
+                    "appidacr": "2",
+                    "http://schemas.microsoft.com/2012/01/devicecontext/claims/identifier": "ed19b573-3ac7-4902-8754-d47ff544c509",
+                    "e_exp": "262800",
+                    "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname": "Oliver",
+                    "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname": "Greg",
+                    "ipaddr": "213.86.212.84",
+                    "name": "Greg Oliver",
+                    "http://schemas.microsoft.com/identity/claims/objectidentifier": "88a79efd-2430-41ba-879c-7ffd36bb1553",
+                    "onprem_sid": "S-1-5-21-2127521184-1604012920-1887927527-4569185",
+                    "puid": "1003BFFD801C3922",
+                    "http://schemas.microsoft.com/identity/claims/scope": "user_impersonation",
+                    "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier": "TSn71bUpQXFqid8IktShDdx1n595ZuMw8ZYS1r-X29k",
+                    "http://schemas.microsoft.com/identity/claims/tenantid": "72f988bf-86f1-41af-91ab-2d7cd011db47",
+                    "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name": "golive@microsoft.com",
+                    "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/upn": "golive@microsoft.com",
+                    "uti": "ZfzTndUFFUKN48GnGxwTAA",
+                    "ver": "1.0"
+                }
+            },
+            "level": "Information",
+            "location": "global"
+        },
+        {
+            "time": "2017-12-14T19:12:39.3113035Z",
+            "resourceId": "/SUBSCRIPTIONS/743F6ED6-83A8-46F0-822D-EA93B953952D/RESOURCEGROUPS/LINUXDEVRG/PROVIDERS/MICROSOFT.LOGIC/WORKFLOWS/GOLIVE/TRIGGERS/REQUEST",
+            "operationName": "MICROSOFT.LOGIC/WORKFLOWS/TRIGGERS/LISTCALLBACKURL/ACTION",
+            "category": "Action",
+            "resultType": "Start",
+            "resultSignature": "Started.",
+            "durationMs": 0,
+            "callerIpAddress": "213.86.212.84",
+            "correlationId": "117fa65b-f32b-4c6b-8e45-56d9afd1155b",
+            "identity": {
+                "authorization": {
+                    "scope": "/subscriptions/743f6ed6-83a8-46f0-822d-ea93b953952d/resourcegroups/linuxDevRg/providers/Microsoft.Logic/workflows/golive/triggers/request",
+                    "action": "Microsoft.Logic/workflows/triggers/listCallbackUrl/action",
+                    "evidence": {
+                        "role": "Subscription Admin"
+                    }
+                },
+                "claims": {
+                    "aud": "https://management.core.windows.net/",
+                    "iss": "https://sts.windows.net/72f988bf-86f1-41af-91ab-2d7cd011db47/",
+                    "iat": "1513278448",
+                    "nbf": "1513278448",
+                    "exp": "1513282348",
+                    "_claim_names": "{\"groups\":\"src1\"}",
+                    "_claim_sources": "{\"src1\":{\"endpoint\":\"https://graph.windows.net/72f988bf-86f1-41af-91ab-2d7cd011db47/users/88a79efd-2430-41ba-879c-7ffd36bb1553/getMemberObjects\"}}",
+                    "http://schemas.microsoft.com/claims/authnclassreference": "1",
+                    "aio": "ASQA2/8GAAAAxqf6su8yQsE41kZGzgLXzzVeUanFAW8YlekEHCueS4k=",
+                    "http://schemas.microsoft.com/claims/authnmethodsreferences": "rsa,mfa",
+                    "appid": "c44b4083-3bb0-49c1-b47d-974e53cbdf3c",
+                    "appidacr": "2",
+                    "http://schemas.microsoft.com/2012/01/devicecontext/claims/identifier": "ed19b573-3ac7-4902-8754-d47ff544c509",
+                    "e_exp": "262800",
+                    "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname": "Oliver",
+                    "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname": "Greg",
+                    "ipaddr": "213.86.212.84",
+                    "name": "Greg Oliver",
+                    "http://schemas.microsoft.com/identity/claims/objectidentifier": "88a79efd-2430-41ba-879c-7ffd36bb1553",
+                    "onprem_sid": "S-1-5-21-2127521184-1604012920-1887927527-4569185",
+                    "puid": "1003BFFD801C3922",
+                    "http://schemas.microsoft.com/identity/claims/scope": "user_impersonation",
+                    "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier": "TSn71bUpQXFqid8IktShDdx1n595ZuMw8ZYS1r-X29k",
+                    "http://schemas.microsoft.com/identity/claims/tenantid": "72f988bf-86f1-41af-91ab-2d7cd011db47",
+                    "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name": "golive@microsoft.com",
+                    "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/upn": "golive@microsoft.com",
+                    "uti": "ZfzTndUFFUKN48GnGxwTAA",
+                    "ver": "1.0"
+                }
+            },
+            "level": "Information",
+            "location": "global"
+        },
+        {
+            "time": "2017-12-14T19:12:39.5612805Z",
+            "resourceId": "/SUBSCRIPTIONS/743F6ED6-83A8-46F0-822D-EA93B953952D/RESOURCEGROUPS/LINUXDEVRG/PROVIDERS/MICROSOFT.LOGIC/WORKFLOWS/GOLIVE/TRIGGERS/REQUEST",
+            "operationName": "MICROSOFT.LOGIC/WORKFLOWS/TRIGGERS/LISTCALLBACKURL/ACTION",
+            "category": "Action",
+            "resultType": "Success",
+            "resultSignature": "Succeeded.OK",
+            "durationMs": 244,
+            "callerIpAddress": "213.86.212.84",
+            "correlationId": "117fa65b-f32b-4c6b-8e45-56d9afd1155b",
+            "identity": {
+                "authorization": {
+                    "scope": "/subscriptions/743f6ed6-83a8-46f0-822d-ea93b953952d/resourcegroups/linuxDevRg/providers/Microsoft.Logic/workflows/golive/triggers/request",
+                    "action": "Microsoft.Logic/workflows/triggers/listCallbackUrl/action",
+                    "evidence": {
+                        "role": "Subscription Admin"
+                    }
+                },
+                "claims": {
+                    "aud": "https://management.core.windows.net/",
+                    "iss": "https://sts.windows.net/72f988bf-86f1-41af-91ab-2d7cd011db47/",
+                    "iat": "1513278448",
+                    "nbf": "1513278448",
+                    "exp": "1513282348",
+                    "_claim_names": "{\"groups\":\"src1\"}",
+                    "_claim_sources": "{\"src1\":{\"endpoint\":\"https://graph.windows.net/72f988bf-86f1-41af-91ab-2d7cd011db47/users/88a79efd-2430-41ba-879c-7ffd36bb1553/getMemberObjects\"}}",
+                    "http://schemas.microsoft.com/claims/authnclassreference": "1",
+                    "aio": "ASQA2/8GAAAAxqf6su8yQsE41kZGzgLXzzVeUanFAW8YlekEHCueS4k=",
+                    "http://schemas.microsoft.com/claims/authnmethodsreferences": "rsa,mfa",
+                    "appid": "c44b4083-3bb0-49c1-b47d-974e53cbdf3c",
+                    "appidacr": "2",
+                    "http://schemas.microsoft.com/2012/01/devicecontext/claims/identifier": "ed19b573-3ac7-4902-8754-d47ff544c509",
+                    "e_exp": "262800",
+                    "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname": "Oliver",
+                    "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname": "Greg",
+                    "ipaddr": "213.86.212.84",
+                    "name": "Greg Oliver",
+                    "http://schemas.microsoft.com/identity/claims/objectidentifier": "88a79efd-2430-41ba-879c-7ffd36bb1553",
+                    "onprem_sid": "S-1-5-21-2127521184-1604012920-1887927527-4569185",
+                    "puid": "1003BFFD801C3922",
+                    "http://schemas.microsoft.com/identity/claims/scope": "user_impersonation",
+                    "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier": "TSn71bUpQXFqid8IktShDdx1n595ZuMw8ZYS1r-X29k",
+                    "http://schemas.microsoft.com/identity/claims/tenantid": "72f988bf-86f1-41af-91ab-2d7cd011db47",
+                    "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name": "golive@microsoft.com",
+                    "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/upn": "golive@microsoft.com",
+                    "uti": "ZfzTndUFFUKN48GnGxwTAA",
+                    "ver": "1.0"
+                }
+            },
+            "level": "Information",
+            "location": "global",
+            "properties": {
+                "statusCode": "OK",
+                "serviceRequestId": "westus:b39ff21a-2165-4781-99e1-7e2922ce27f7"
+            }
+        },
+        {
+            "time": "2017-12-14T19:12:39.5612805Z",
+            "resourceId": "/SUBSCRIPTIONS/743F6ED6-83A8-46F0-822D-EA93B953952D/RESOURCEGROUPS/LINUXDEVRG/PROVIDERS/MICROSOFT.LOGIC/WORKFLOWS/GOLIVE/TRIGGERS/REQUEST",
+            "operationName": "MICROSOFT.LOGIC/WORKFLOWS/TRIGGERS/LISTCALLBACKURL/ACTION",
+            "category": "Action",
+            "resultType": "Success",
+            "resultSignature": "Succeeded.OK",
+            "durationMs": 244,
+            "callerIpAddress": "213.86.212.84",
+            "correlationId": "117fa65b-f32b-4c6b-8e45-56d9afd1155b",
+            "identity": {
+                "authorization": {
+                    "scope": "/subscriptions/743f6ed6-83a8-46f0-822d-ea93b953952d/resourcegroups/linuxDevRg/providers/Microsoft.Logic/workflows/golive/triggers/request",
+                    "action": "Microsoft.Logic/workflows/triggers/listCallbackUrl/action",
+                    "evidence": {
+                        "role": "Subscription Admin"
+                    }
+                },
+                "claims": {
+                    "aud": "https://management.core.windows.net/",
+                    "iss": "https://sts.windows.net/72f988bf-86f1-41af-91ab-2d7cd011db47/",
+                    "iat": "1513278448",
+                    "nbf": "1513278448",
+                    "exp": "1513282348",
+                    "_claim_names": "{\"groups\":\"src1\"}",
+                    "_claim_sources": "{\"src1\":{\"endpoint\":\"https://graph.windows.net/72f988bf-86f1-41af-91ab-2d7cd011db47/users/88a79efd-2430-41ba-879c-7ffd36bb1553/getMemberObjects\"}}",
+                    "http://schemas.microsoft.com/claims/authnclassreference": "1",
+                    "aio": "ASQA2/8GAAAAxqf6su8yQsE41kZGzgLXzzVeUanFAW8YlekEHCueS4k=",
+                    "http://schemas.microsoft.com/claims/authnmethodsreferences": "rsa,mfa",
+                    "appid": "c44b4083-3bb0-49c1-b47d-974e53cbdf3c",
+                    "appidacr": "2",
+                    "http://schemas.microsoft.com/2012/01/devicecontext/claims/identifier": "ed19b573-3ac7-4902-8754-d47ff544c509",
+                    "e_exp": "262800",
+                    "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname": "Oliver",
+                    "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname": "Greg",
+                    "ipaddr": "213.86.212.84",
+                    "name": "Greg Oliver",
+                    "http://schemas.microsoft.com/identity/claims/objectidentifier": "88a79efd-2430-41ba-879c-7ffd36bb1553",
+                    "onprem_sid": "S-1-5-21-2127521184-1604012920-1887927527-4569185",
+                    "puid": "1003BFFD801C3922",
+                    "http://schemas.microsoft.com/identity/claims/scope": "user_impersonation",
+                    "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier": "TSn71bUpQXFqid8IktShDdx1n595ZuMw8ZYS1r-X29k",
+                    "http://schemas.microsoft.com/identity/claims/tenantid": "72f988bf-86f1-41af-91ab-2d7cd011db47",
+                    "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name": "golive@microsoft.com",
+                    "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/upn": "golive@microsoft.com",
+                    "uti": "ZfzTndUFFUKN48GnGxwTAA",
+                    "ver": "1.0"
+                }
+            },
+            "level": "Information",
+            "location": "global",
+            "properties": {
+                "statusCode": "OK",
+                "serviceRequestId": "westus:b39ff21a-2165-4781-99e1-7e2922ce27f7"
+            }
+        }
+    ]
+}
