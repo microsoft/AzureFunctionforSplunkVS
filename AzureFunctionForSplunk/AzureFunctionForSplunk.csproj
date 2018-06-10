@@ -10,7 +10,7 @@
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
-    <None Update="ActivityLogCategories.json">
+    <None Update="WadCategories.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="DiagnosticLogCategories.json">
