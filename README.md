@@ -13,7 +13,7 @@ Here are a few resources if you want to learn more about Azure Monitor:<br/>
 * [Overview of Metrics in Microsoft Azure](https://docs.microsoft.com/en-us/azure/monitoring-and-diagnostics/monitoring-overview-metrics)  
 
 ## Important Security Note
-The HEC endpoint for a Splunk instance is SSL encrypted. This function CAN ignore the validity of the certificate. To do so, do not provide App Setting 'splunkCertThumbprint' or leave it blank. To ENABLE cert validation, make the value of that setting the thumbprint of the cert.
+The HEC endpoint for a Splunk instance is SSL encrypted. This function CAN ignore the validity of the certificate. To do so, do not provide App Setting 'splunkCertThumbprint' or leave it blank. To ENABLE cert validation, make the value of that setting the thumbprint of the cert. If you provide the cert thumbprint, the splunkAddress must be https://**whatever**. If you do not provide the cert thumbprint, the splunkAddress must be http://**whatever**.
 
 ## Solution Overview
 
