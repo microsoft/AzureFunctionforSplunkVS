@@ -13,6 +13,9 @@
     <None Update="ActivityLogCategories.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="WadCategories.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="DiagnosticLogCategories.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

@@ -62,11 +62,11 @@ namespace AzureFunctionForSplunk
 
         protected void GetStandardProperties()
         {
-            var patternSubscriptionId = "SUBSCRIPTIONS\\/(.*?)\\/";
-            var patternResourceGroup = "SUBSCRIPTIONS\\/(?:.*?)\\/RESOURCEGROUPS\\/(.*?)\\/";
-            var patternResourceType = "PROVIDERS\\/(.*?\\/.*?)(?:\\/)";
-            var patternResourceName = "PROVIDERS\\/(?:.*?\\/.*?\\/)(.*?)(?:\\/|$)";
-            var patternDatabase = "PROVIDERS\\/(.*?\\/.*?)(?:\\/)(?:.*\\/)(.*DATABASES)";
+            var patternSubscriptionId = @"SUBSCRIPTIONS\/(.*?)\/";
+            var patternResourceGroup = @"SUBSCRIPTIONS\/(?:.*?)\/RESOURCEGROUPS\/(.*?)(\/|\Z)";
+            var patternResourceType = @"PROVIDERS\/(.*?\/.*?)(?:\/)";
+            var patternResourceName = @"PROVIDERS\/(?:.*?\/.*?\/)(.*?)(?:\/|$)";
+            var patternDatabase = @"PROVIDERS\/(.*?\/.*?)(?:\/)(?:.*\/)(.*DATABASES)";
 
             Match m = Regex.Match(ResourceId, patternSubscriptionId);
             SubscriptionId = m.Groups[1].Value;
