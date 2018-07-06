@@ -39,14 +39,27 @@ namespace AzureFunctionForSplunk
     public static class EhWadTelemetry
     {
         [FunctionName("EhWadTelemetry")]
-        public static void Run([EventHubTrigger("%input-hub-name-wad%", Connection = "hubConnection")]string[] messages, TraceWriter log)
+        public static async Task Run(
+            [EventHubTrigger("%input-hub-name-wad%", Connection = "hubConnection")]
+            string[] messages, 
+            TraceWriter log)
         {
             //log.Info($"C# Event Hub trigger function processed messages: {messages}");
             List<string> splunkEventMessages = MakeSplunkEventMessages(messages, log);
 
-            foreach (var s in splunkEventMessages)
+            //foreach (var s in splunkEventMessages)
+            //{
+            //    log.Info($"{s}");
+            //}
+
+            string outputBinding = Utils.getEnvironmentVariable("outputBinding");
+            if (outputBinding.ToUpper() == "HEC")
             {
-                log.Info($"{s}");
+                await Utils.obHEC(splunkEventMessages, log);
+            }
+            else
+            {
+                log.Info("No or incorrect output binding specified. No messages sent to Splunk.");
             }
         }
 
