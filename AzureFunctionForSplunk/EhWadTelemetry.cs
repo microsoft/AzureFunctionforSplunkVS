@@ -45,6 +45,12 @@ namespace AzureFunctionForSplunk
             TraceWriter log)
         {
             //log.Info($"C# Event Hub trigger function processed messages: {messages}");
+
+            //foreach (var s in messages)
+            //{
+            //    log.Info($"{s}");
+            //}
+
             List<string> splunkEventMessages = MakeSplunkEventMessages(messages, log);
 
             //foreach (var s in splunkEventMessages)
@@ -101,7 +107,16 @@ namespace AzureFunctionForSplunk
                     // see if it's perf counter
                     try
                     {
+                        // if this throws, it's not a perf counter
                         var metricName = record.metricName;
+
+                        // add resource type
+                        record.azwad_ResourceType = "MICROSOFT.COMPUTE/VIRTUALMACHINES";
+
+                        // add resource name
+                        string theName = record.dimensions.RoleInstance;
+                        record.azwad_ResourceName = theName.Substring(1);
+
                         string splunkEventMessage = GetSplunkEventFromMessage(record, "azwad:perf");
                         splunkEventMessages.Add(splunkEventMessage);
                         continue;
@@ -112,6 +127,13 @@ namespace AzureFunctionForSplunk
                     {
                         if (record.category == "WindowsEventLogsTable")
                         {
+                            // add resource type
+                            record.azwad_ResourceType = "MICROSOFT.COMPUTE/VIRTUALMACHINES";
+
+                            // add resource name
+                            string theName = record.properties.RoleInstance;
+                            record.azwad_ResourceName = theName.Substring(1);
+
                             string splunkEventMessage = GetSplunkEventFromMessage(record, "azwad:event");
                             splunkEventMessages.Add(splunkEventMessage);
                             continue;
