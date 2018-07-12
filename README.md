@@ -22,9 +22,16 @@ At a high level, the Azure Functions approach to delivering telemetry to Splunk 
 * Azure Function is triggered by these messages
 * Azure Function delivers the messages to Splunk
 
-Azure Functions are arranged hierarchically as a Function App containing individual functions within. An individual function is triggered by a single event hub. Regarding logs from Azure Monitor, each log category CAN BE sent to its own hub. Each Azure Resource Provider that emits logs may emit more than one log category. Similarly, metrics are sent to a hub as configured by the user. Hence, there MAY BE many hubs for the Function App to watch over. BUT, you can configure all diagnostic logs to go to the same hub. This practice is recommended for simplicity's sake. 
+Azure Functions are arranged hierarchically as a Function App containing individual functions within. An individual function is triggered by a single event hub. Regarding logs from Azure Monitor, each log category CAN BE sent to its own hub. Each Azure Resource Provider that emits logs may emit more than one log category. Similarly, metrics are sent to a hub as configured by the user. Hence, there MAY BE many hubs for the Function App to watch over. BUT, you can configure all diagnostic logs to go to the same hub. This practice is recommended for simplicity's sake.  
 
-The Activity Log goes to a hub named 'Insights-Operational-Logs'. This will be configurable at some point, but for now, the function should be configured to listen to that hub.
+### Functions in the Function App
+* EhActivityLogs - consumes Azure Monitor Activity Logs
+* EhDiagnosticLogs - consumes Azure Monitor Diagnostic Logs
+* EhLadTelemetry - consumes telemetry from Azure Linux VMs
+* EhMetrics - consumes Azure Monitor Metrics
+* EhWadTelemetry - consumes telemetry from Azure Windows VMs  
+
+The Activity Log transmits to a hub named 'Insights-Operational-Logs'. This will be configurable at some point, but for now, the function should be configured to listen to that hub.
 
 The solution leverages the capacity of an Azure Function to be triggered by arrival of messages to an Event Hub. The messages are aggregated by the Azure Functions back end so they arrive at the function already in a batch where the size of the batch depends on current message volume and settings. The batch is examined, the properties of each event are augmented, and then the events are sent via the selected output binding to the Splunk instance.  
 
@@ -42,11 +49,27 @@ Installation and Configuration tasks for the overall solution fall into a few bu
 * Splunk instance
 * Azure Function
 
-
 ### Diagnostics Profiles
 Each resource to be monitored must have a diagnostics profile created for it. This can be done in the portal, but more likely you'll want to write a script to configure existing resources and update your solution templates to create these profiles upon creation of the resource. Here's a place to start:
 
 [Automatically enable Diagnostic Settings at resource creation using a Resource Manager template](https://docs.microsoft.com/en-us/azure/monitoring-and-diagnostics/monitoring-enable-diagnostic-logs-using-template)
+
+### Diagnostic Profiles for VMs
+Each VM to be monitored by the function app requires configuration artifacts:  
+* Diagnostic Extension designed for the OS
+* public configuration file - tells the extension which metrics and logs you want to emit from the VM
+* private configuration file - contains credentials for the targets of the VMs telemetry  
+
+For Linux VMs, guidance on installing the extension and guidance on designing the configuration files is in this document  
+[Use Linux Diagnostic Extension to monitor metrics and logs](https://docs.microsoft.com/en-us/azure/virtual-machines/extensions/diagnostics-linux)  
+For Windows VMs, that same guidance is here:  
+[Use PowerShell to enable Azure Diagnostics in a virtual machine running Windows](https://docs.microsoft.com/en-us/azure/virtual-machines/extensions/diagnostics-windows)  
+
+The private configuration file for a Linux VM will require a SAS token. A sample of C# code that generates a suitable SAS token is [here](https://github.com/sebastus/GenerateSasForEh). The sasURL in the protected config file will look something like this:  
+
+```
+https://namespace.servicebus.windows.net/insights-telemetry-lad?sr=https%3a%2f%2fnamespace.servicebus.windows.net%2finsights-telemetry-lad&sig=wsVxC%2f%2bm7vRhOZjm%2fJMEWTX%2by0sOil6z%2bFqwoWrstkQ%3d&se=1562845709&skn=RootManageSharedAccessKey  
+```
 
 ### Event hubs
 
