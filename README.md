@@ -31,7 +31,7 @@ Azure Functions are arranged hierarchically as a Function App containing individ
 * EhMetrics - consumes Azure Monitor Metrics
 * EhWadTelemetry - consumes telemetry from Azure Windows VMs  
 
-The Activity Log goes to a hub named 'Insights-Operational-Logs'. This will be configurable at some point, but for now, the function should be configured to listen to that hub.
+The Activity Log transmits to a hub named 'Insights-Operational-Logs'. This will be configurable at some point, but for now, the function should be configured to listen to that hub.
 
 The solution leverages the capacity of an Azure Function to be triggered by arrival of messages to an Event Hub. The messages are aggregated by the Azure Functions back end so they arrive at the function already in a batch where the size of the batch depends on current message volume and settings. The batch is examined, the properties of each event are augmented, and then the events are sent via the selected output binding to the Splunk instance.  
 
@@ -60,8 +60,10 @@ Each VM to be monitored by the function app requires configuration artifacts:
 * public configuration file - tells the extension which metrics and logs you want to emit from the VM
 * private configuration file - contains credentials for the targets of the VMs telemetry  
 
-For Linux VMs, guidance on installing the extension and guidance on designing the configuration files is in this document [Use Linux Diagnostic Extension to monitor metrics and logs](https://docs.microsoft.com/en-us/azure/virtual-machines/extensions/diagnostics-linux)  
-For Windows VMs, that same guidance is here: [Use PowerShell to enable Azure Diagnostics in a virtual machine running Windows](https://docs.microsoft.com/en-us/azure/virtual-machines/extensions/diagnostics-windows)  
+For Linux VMs, guidance on installing the extension and guidance on designing the configuration files is in this document  
+[Use Linux Diagnostic Extension to monitor metrics and logs](https://docs.microsoft.com/en-us/azure/virtual-machines/extensions/diagnostics-linux)  
+For Windows VMs, that same guidance is here:  
+[Use PowerShell to enable Azure Diagnostics in a virtual machine running Windows](https://docs.microsoft.com/en-us/azure/virtual-machines/extensions/diagnostics-windows)  
 
 The private configuration file for a Linux VM will require a SAS token. A sample of C# code that generates a suitable SAS token is [here](https://github.com/sebastus/GenerateSasForEh). The sasURL in the protected config file will look something like this:  
 
