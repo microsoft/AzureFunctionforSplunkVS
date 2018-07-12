@@ -165,9 +165,122 @@ namespace AzureFunctionForSplunk
         {
             ResourceId = "";
             Message = message;
-
+            Message.azlz_ResourceType = "MICROSOFT.COMPUTE/VIRTUALMACHINES";
         }
 
+    }
+
+    public class WadMetricMessage : AzureMonitorMessage
+    {
+        public WadMetricMessage(dynamic message, bool hasName)
+        {
+            ResourceId = "";
+            Message = message;
+
+            ResourceType = "MICROSOFT.COMPUTE/VIRTUALMACHINES";
+            if (hasName)
+            {
+                string theName = message.dimensions.RoleInstance;
+                ResourceName = theName.Substring(1);
+            }
+
+            AddStandardProperties();
+        }
+
+        private void AddStandardProperties()
+        {
+            if (SubscriptionId != "")
+            {
+                Message.azwm_SubscriptionId = SubscriptionId;
+            }
+            if (ResourceGroup != "")
+            {
+                Message.azwm_ResourceGroup = ResourceGroup;
+            }
+            if (ResourceType != "")
+            {
+                Message.azwm_ResourceType = ResourceType;
+            }
+            if (ResourceName != "")
+            {
+                Message.azwm_ResourceName = ResourceName;
+            }
+        }
+    }
+
+    public class WadLogMessage : AzureMonitorMessage
+    {
+        public WadLogMessage(dynamic message, bool hasName)
+        {
+            ResourceId = "";
+            Message = message;
+
+            ResourceType = "MICROSOFT.COMPUTE/VIRTUALMACHINES";
+            if (hasName)
+            {
+                string theName = message.dimensions.RoleInstance;
+                ResourceName = theName.Substring(1);
+            }
+
+            AddStandardProperties();
+        }
+
+        private void AddStandardProperties()
+        {
+            if (SubscriptionId != "")
+            {
+                Message.azwm_SubscriptionId = SubscriptionId;
+            }
+            if (ResourceGroup != "")
+            {
+                Message.azwm_ResourceGroup = ResourceGroup;
+            }
+            if (ResourceType != "")
+            {
+                Message.azwm_ResourceType = ResourceType;
+            }
+            if (ResourceName != "")
+            {
+                Message.azwm_ResourceName = ResourceName;
+            }
+        }
+    }
+
+    public class WadUnknownMessage : AzureMonitorMessage
+    {
+        public WadUnknownMessage(dynamic message, bool hasName)
+        {
+            ResourceId = "";
+            Message = message;
+            ResourceType = "MICROSOFT.COMPUTE/VIRTUALMACHINES";
+
+            if (hasName)
+            {
+                string theName = message.dimensions.RoleInstance;
+                ResourceName = theName.Substring(1);
+            }
+            AddStandardProperties();
+        }
+
+        private void AddStandardProperties()
+        {
+            if (SubscriptionId != "")
+            {
+                Message.azwz_SubscriptionId = SubscriptionId;
+            }
+            if (ResourceGroup != "")
+            {
+                Message.azwz_ResourceGroup = ResourceGroup;
+            }
+            if (ResourceType != "")
+            {
+                Message.azwz_ResourceType = ResourceType;
+            }
+            if (ResourceName != "")
+            {
+                Message.azwz_ResourceName = ResourceName;
+            }
+        }
     }
 
     public class MetricMessage : AzureMonitorMessage

@@ -27,12 +27,12 @@
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Host;
 using Microsoft.Azure.WebJobs.ServiceBus;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using System.Dynamic;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
+using System;
+using System.Collections.Generic;
+using System.Dynamic;
+using System.Threading.Tasks;
 
 namespace AzureFunctionForSplunk
 {
@@ -44,19 +44,17 @@ namespace AzureFunctionForSplunk
             string[] messages, 
             TraceWriter log)
         {
-            //log.Info($"C# Event Hub trigger function processed messages: {messages}");
 
-            //foreach (var s in messages)
-            //{
-            //    log.Info($"{s}");
-            //}
-
-            List<string> splunkEventMessages = MakeSplunkEventMessages(messages, log);
-
-            //foreach (var s in splunkEventMessages)
-            //{
-            //    log.Info($"{s}");
-            //}
+            List<string> splunkEventMessages = null;
+            try
+            {
+                splunkEventMessages = MakeSplunkEventMessages(messages, log);
+            }
+            catch (Exception ex)
+            {
+                log.Error($"{ex.Message}");
+                return;
+            }
 
             string outputBinding = Utils.getEnvironmentVariable("outputBinding");
             if (outputBinding.ToUpper() == "HEC")
@@ -79,75 +77,56 @@ namespace AzureFunctionForSplunk
             //string messagesJson = "{\"messages\": [";
             foreach (var message in messages)
             {
-                //if (messagesJson != "{\"messages\": [")
-                //    messagesJson += ",";
-                //messagesJson += message;
+                dynamic obj = JsonConvert.DeserializeObject<Dictionary<string, dynamic>>(message);
 
-                var converter = new ExpandoObjectConverter();
-                dynamic obj = JsonConvert.DeserializeObject<ExpandoObject>(message, converter);
-
-                var records = obj.records;
+                var records = obj["records"];
                 foreach (var record in records)
                 {
-                    // see if it's perf counter
-                    try
+                    string stringRecord = record.ToString();
+                    var dictRecord = JsonConvert.DeserializeObject<Dictionary<string, dynamic>>(stringRecord);
+                    bool isMetric = dictRecord.ContainsKey("metricName");
+                    bool isLog = dictRecord.ContainsKey("category");
+                    bool hasName = dictRecord.ContainsKey("dimensions.RoleInstance");
+
+                    var expandoConverter = new ExpandoObjectConverter();
+                    var expandoRecord = JsonConvert.DeserializeObject<ExpandoObject>(stringRecord, expandoConverter);
+
+                    string splunkEventMessage = "";
+                    if (isMetric)
                     {
-                        // if this throws, it's not a perf counter
-                        var metricName = record.metricName;
-
-                        // add resource type
-                        record.azwad_ResourceType = "MICROSOFT.COMPUTE/VIRTUALMACHINES";
-
-                        // add resource name
-                        string theName = record.dimensions.RoleInstance;
-                        record.azwad_ResourceName = theName.Substring(1);
-
-                        string splunkEventMessage = GetSplunkEventFromMessage(record, "azwad:perf");
-                        splunkEventMessages.Add(splunkEventMessage);
-                        continue;
-                    } catch (Exception) { }
-
-                    // see if it's WindowsEventLogsTable
-                    try
-                    {
-                        if (record.category == "WindowsEventLogsTable")
+                        var wadMetricMessage = new WadMetricMessage(expandoRecord, hasName)
                         {
-                            // add resource type
-                            record.azwad_ResourceType = "MICROSOFT.COMPUTE/VIRTUALMACHINES";
+                            SplunkSourceType = "azwm:compute:vm"
+                        };
 
-                            // add resource name
-                            string theName = record.properties.RoleInstance;
-                            record.azwad_ResourceName = theName.Substring(1);
+                        splunkEventMessage = wadMetricMessage.GetSplunkEventFromMessage();
+                    }
+                    else if (isLog)
+                    {
+                        var wadLogMessage = new WadLogMessage(expandoRecord, hasName)
+                        {
+                            SplunkSourceType = "azwl:compute:vm"
+                        };
 
-                            string splunkEventMessage = GetSplunkEventFromMessage(record, "azwad:event");
-                            splunkEventMessages.Add(splunkEventMessage);
-                            continue;
-                        }
-                    } catch (Exception) { }
+                        splunkEventMessage = wadLogMessage.GetSplunkEventFromMessage();
+                    }
+                    else
+                    {
+                        log.Warning("Unexpected message format, neither category nor metricName exists in message. Look for sourcetype='azwz:compute:vm'");
+                        var wadUnknownMessage = new WadUnknownMessage(expandoRecord, hasName)
+                        {
+                            SplunkSourceType = "azwz:compute:vm"
+                        };
 
-                    string s = GetSplunkEventFromMessage(record, "azwad:else");
-                    splunkEventMessages.Add(s);
-                    continue;
+                        splunkEventMessage = wadUnknownMessage.GetSplunkEventFromMessage();
+                    }
+
+                    if (splunkEventMessage != "") splunkEventMessages.Add(splunkEventMessage);
+
                 }
             }
-            //messagesJson += "]}";
-            //log.Info($"Messages are: {messagesJson}");
-
 
             return splunkEventMessages;
-        }
-
-        public static string GetSplunkEventFromMessage(dynamic Message, string SplunkSourceType)
-        {
-            string json = Newtonsoft.Json.JsonConvert.SerializeObject(Message);
-
-            var s = "{";
-            s += "\"sourcetype\": \"" + SplunkSourceType + "\",";
-            s += "\"event\": " + json;
-            s += "}";
-
-            return s;
-
         }
     }
 }
