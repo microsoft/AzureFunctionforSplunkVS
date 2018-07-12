@@ -71,21 +71,6 @@ namespace AzureFunctionForSplunk
 
         private static List<string> MakeSplunkEventMessages(string[] messages, TraceWriter log)
         {
-            Dictionary<string, string> WADCategories = new Dictionary<string, string>();
-
-            var filename = Utils.getFilename("WadCategories.json");
-
-            // log.Info($"File name of categories dictionary is: {filename}");
-
-            try
-            {
-                WADCategories = Utils.GetDictionary(filename);
-            }
-            catch (Exception ex)
-            {
-                log.Error($"Error getting wad categories json file. {ex.Message}");
-            }
-
             List<string> splunkEventMessages = new List<string>();
 
             // each message in the array of messages can contain records of various types

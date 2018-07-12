@@ -91,6 +91,85 @@ namespace AzureFunctionForSplunk
         }
     }
 
+    public class LadMetricMessage : AzureMonitorMessage
+    {
+        public LadMetricMessage(string resourceId, dynamic message)
+        {
+            ResourceId = resourceId;
+            Message = message;
+
+            GetStandardProperties();
+
+            AddStandardProperties();
+
+        }
+
+        private void AddStandardProperties()
+        {
+            if (SubscriptionId != "")
+            {
+                Message.azlm_SubscriptionId = SubscriptionId;
+            }
+            if (ResourceGroup != "")
+            {
+                Message.azlm_ResourceGroup = ResourceGroup;
+            }
+            if (ResourceType != "")
+            {
+                Message.azlm_ResourceType = ResourceType;
+            }
+            if (ResourceName != "")
+            {
+                Message.azlm_ResourceName = ResourceName;
+            }
+        }
+    }
+
+    public class LadLogMessage : AzureMonitorMessage
+    {
+        public LadLogMessage(string resourceId, dynamic message)
+        {
+            ResourceId = resourceId;
+            Message = message;
+
+            GetStandardProperties();
+
+            AddStandardProperties();
+
+        }
+
+        private void AddStandardProperties()
+        {
+            if (SubscriptionId != "")
+            {
+                Message.azll_SubscriptionId = SubscriptionId;
+            }
+            if (ResourceGroup != "")
+            {
+                Message.azll_ResourceGroup = ResourceGroup;
+            }
+            if (ResourceType != "")
+            {
+                Message.azll_ResourceType = ResourceType;
+            }
+            if (ResourceName != "")
+            {
+                Message.azll_ResourceName = ResourceName;
+            }
+        }
+    }
+
+    public class LadUnknownMessage : AzureMonitorMessage
+    {
+        public LadUnknownMessage(dynamic message)
+        {
+            ResourceId = "";
+            Message = message;
+
+        }
+
+    }
+
     public class MetricMessage : AzureMonitorMessage
     {
         public MetricMessage(string resourceId, dynamic message)
