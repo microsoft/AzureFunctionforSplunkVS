@@ -39,6 +39,13 @@ using System.Threading.Tasks;
 
 namespace AzureFunctionForSplunk
 {
+    public class TransmissionFaultMessage
+    {
+        public string id { get; set; }
+        public string type { get; set; }
+
+    }
+
     public class Utils
     {
         static string splunkCertThumbprint { get; set; }

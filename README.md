@@ -1,6 +1,8 @@
 # AzureFunctionForSplunkVS
 Azure Function sends Azure Monitor telemetry to Splunk - coded in C# / Visual Studio.
 
+[![Deploy to Azure](http://azuredeploy.net/deploybutton.png)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fsebastus%2FAzureFunctionDeployment%2FSplunkVS%2FazureDeploy.json)  
+
 # Azure Function For Splunk
 Azure Function code that sends telemetry from Azure resources to a Splunk Enterprise or Splunk Cloud instance.
 
