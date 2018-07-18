@@ -27,11 +27,12 @@ At a high level, the Azure Functions approach to delivering telemetry to Splunk 
 Azure Functions are arranged hierarchically as a Function App containing individual functions within. An individual function is triggered by a single event hub. Regarding logs from Azure Monitor, each log category CAN BE sent to its own hub. Each Azure Resource Provider that emits logs may emit more than one log category. Similarly, metrics are sent to a hub as configured by the user. Hence, there MAY BE many hubs for the Function App to watch over. BUT, you can configure all diagnostic logs to go to the same hub. This practice is recommended for simplicity's sake.  
 
 ### Functions in the Function App
-* EhActivityLogs - consumes Azure Monitor Activity Logs
-* EhDiagnosticLogs - consumes Azure Monitor Diagnostic Logs
-* EhLadTelemetry - consumes telemetry from Azure Linux VMs
-* EhMetrics - consumes Azure Monitor Metrics
-* EhWadTelemetry - consumes telemetry from Azure Windows VMs  
+* EhActivityLogsExt - consumes Azure Monitor Activity Logs
+* EhDiagnosticLogsExt - consumes Azure Monitor Diagnostic Logs
+* EhLadTelemetryExt - consumes telemetry from Azure Linux VMs
+* EhMetricsExt - consumes Azure Monitor Metrics
+* EhWadTelemetryExt - consumes telemetry from Azure Windows VMs  
+* FaultProcessor - consumes queue messages from faulted transmissions
 
 The Activity Log transmits to a hub named 'Insights-Operational-Logs'. This will be configurable at some point, but for now, the function should be configured to listen to that hub.
 
@@ -117,7 +118,11 @@ If you want to automate the creation of your Azure Function (recommended), there
 
 Use the SplunkVS branch in the link. It's configured specifically for this function.  
 
-Once the Function App exists, add the appropriate values into settings. The settings are created automatically if you use the ARM template (the 'Deploy to Azure' button.)
+Or, just click the "Deploy to Azure" button at the top of this page.  
+
+Once the Function App exists, check and correct application settings. The settings are created automatically if you use the ARM template (the 'Deploy to Azure' button.)  
+
+You will then need to create an Azure Storage Queue in the storage account. Its name is case-sensitive: "transmission-faults". On the "Function app settings" page, switch "Function app edit mode" to Read/Write and then disable the FaultProcessor function on the Functions page.
 
 #### Using HEC output binding
 
