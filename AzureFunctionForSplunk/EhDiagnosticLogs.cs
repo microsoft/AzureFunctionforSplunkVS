@@ -32,10 +32,6 @@ using Newtonsoft.Json.Converters;
 using System;
 using System.Collections.Generic;
 using System.Dynamic;
-using System.Net;
-using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace AzureFunctionForSplunk
@@ -47,16 +43,35 @@ namespace AzureFunctionForSplunk
             [EventHubTrigger("%input-hub-name-diagnostics-logs%", Connection = "hubConnection")]string[] messages,
             TraceWriter log)
         {
-            List<string> splunkEventMessages = MakeSplunkEventMessages(messages, log);
+
+            List<string> splunkEventMessages = null;
+            try
+            {
+                splunkEventMessages = MakeSplunkEventMessages(messages, log);
+            }
+            catch (Exception ex)
+            {
+                log.Error($"{ex.Message}");
+                throw ex;
+            }
 
             string outputBinding = Utils.getEnvironmentVariable("outputBinding");
             if (outputBinding.ToUpper() == "HEC")
             {
-                await Utils.obHEC(splunkEventMessages, log);
+                try
+                {
+                    await Utils.obHEC(splunkEventMessages, log);
+                }
+                catch (Exception ex)
+                {
+                    log.Error($"Error transmitting to Splunk.");
+                    throw ex;
+                }
             }
             else
             {
-                log.Info("No or incorrect output binding specified. No messages sent to Splunk.");
+                log.Error("No or incorrect output binding specified. No messages sent to Splunk.");
+                throw new System.ArgumentException("No or incorrect output binding specified. No messages sent to Splunk.");
             }
 
         }
