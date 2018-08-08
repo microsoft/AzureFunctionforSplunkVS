@@ -42,13 +42,19 @@ namespace AzureFunctionForSplunk
             {
                 dynamic obj = JsonConvert.DeserializeObject<Dictionary<string, dynamic>>(message);
 
-                var records = obj["records"];
-
-                foreach (var record in records)
+                if (((IDictionary<string, dynamic>)obj).ContainsKey("records"))
                 {
-                    string stringRecord = record.ToString();
+                    var records = obj["records"];
 
-                    decomposed.Add(stringRecord);
+                    foreach (var record in records)
+                    {
+                        string stringRecord = record.ToString();
+
+                        decomposed.Add(stringRecord);
+                    }
+                } else
+                {
+                    Log.Error("AzMonMessages: invalid message structure, missing 'records'");
                 }
             }
 

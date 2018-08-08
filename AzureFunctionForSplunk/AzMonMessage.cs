@@ -40,6 +40,8 @@ namespace AzureFunctionForSplunk
         public string ResourceName { get; set; }
         public string ResourceGroup { get; set; }
         public string SplunkSourceType { get; set; }
+        public string TenantId { get; set; }
+        public string ProviderName { get; set; }
 
         public AzMonMessage()
         {
@@ -49,6 +51,7 @@ namespace AzureFunctionForSplunk
             ResourceName = "";
             ResourceType = "";
             SplunkSourceType = "";
+            TenantId = "";
         }
 
         public string GetSplunkEventFromMessage()
@@ -98,6 +101,10 @@ namespace AzureFunctionForSplunk
 
         protected void AddStandardProperties(string prefix)
         {
+            if (TenantId != "")
+            {
+                ((IDictionary<String, Object>)Message).Add($"{prefix}_TenantId", TenantId);
+            }
             if (SubscriptionId != "")
             {
                 ((IDictionary<String, Object>)Message).Add($"{prefix}_SubscriptionId", SubscriptionId);
@@ -124,6 +131,16 @@ namespace AzureFunctionForSplunk
         {
             Message = message;
             ResourceId = message.resourceId;
+
+            if (((IDictionary<String, Object>)message).ContainsKey("tenantId"))
+            {
+                TenantId = message.tenantId;
+
+                var pattern = @"PROVIDERS/(.*?)(?:$)";
+                Match m = Regex.Match(ResourceId.ToUpper(), pattern);
+                ProviderName = m.Groups[1].Value;
+            }
+
             SplunkSourceType = sourceType;
             base.GetStandardProperties();
             base.AddStandardProperties("amal");
@@ -136,6 +153,16 @@ namespace AzureFunctionForSplunk
         {
             Message = message;
             ResourceId = message.resourceId;
+
+            if (((IDictionary<String, Object>)message).ContainsKey("tenantId"))
+            {
+                TenantId = message.tenantId;
+
+                var pattern = @"PROVIDERS/(.*?)(?:$)";
+                Match m = Regex.Match(ResourceId.ToUpper(), pattern);
+                ProviderName = m.Groups[1].Value;
+            }
+
             base.GetStandardProperties();
             base.AddStandardProperties("amdl");
         }
