@@ -120,21 +120,21 @@ namespace AzureFunctionForSplunk
                     switch (provider)
                     {
                         case "MICROSOFT.SERVICEHEALTH":
-                            sourceType = Utils.GetDictionaryValue("servicehealth", Categories) ?? "amal:servicehealth";
+                            sourceType = Utils.GetDictionaryValue("servicehealth", Categories) ?? "amal:serviceHealth";
                             break;
 
                         case "MICROSOFT.RESOURCEHEALTH":
-                            sourceType = Utils.GetDictionaryValue("resourcehealth", Categories) ?? "amal:resourcehealth";
+                            sourceType = Utils.GetDictionaryValue("resourcehealth", Categories) ?? "amal:resourceHealth";
                             break;
 
                         case "MICROSOFT.INSIGHTS":
                             if (type == "AUTOSCALESETTINGS")
                             {
-                                sourceType = Utils.GetDictionaryValue("autoscalesettings", Categories) ?? "amal:autoscalesettings";
+                                sourceType = Utils.GetDictionaryValue("autoscalesettings", Categories) ?? "amal:autoscaleSettings";
                             }
                             else if (type == "ALERTRULES")
                             {
-                                sourceType = Utils.GetDictionaryValue("ascalert", Categories) ?? "amal:ascalert";
+                                sourceType = Utils.GetDictionaryValue("ascalert", Categories) ?? "amal:ascAlert";
                             }
                             else
                             {

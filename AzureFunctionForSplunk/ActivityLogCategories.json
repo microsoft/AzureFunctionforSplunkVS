@@ -1,9 +1,9 @@
 ﻿{
   "administrative": "amal:administrative",
   "ascrecommendation": "amal:asc:recommendation",
-  "servicehealth": "amal:servicehealth",
-  "resourcehealth": "amal:resourcehealth",
-  "autoscalesettings": "amal:autoscalesettings",
+  "servicehealth": "amal:serviceHealth",
+  "resourcehealth": "amal:resourceHealth",
+  "autoscalesettings": "amal:autoscaleSettings",
   "ascalert": "amal:asc:alert",
   "insights": "amal:insights",
   "security": "amal:security"
