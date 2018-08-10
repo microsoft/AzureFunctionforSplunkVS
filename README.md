@@ -32,11 +32,11 @@ If you choose to allow Azure services with diagnostic logs to create their defau
 
 Do this by copying EhDiagnosticLogsExt.cs and name the copy according to the new event hub. For example, if you wanted to use the default hub for Workflow Runtime messages, the default hub name is 'insights-logs-workflowruntime'. You could name your new function 'EhWorkflowRuntimeExt', for example. This is a copy of the code:  
 
-![DiagnosticLogFunction](images/diagnosticLogFunction.PNG)  
+![DiagnosticLogFunction](images/diagnosticLogFunction.png)  
 
 Change the first box to 'EhWorkflowRuntimeExt', the second to the same, and the third to something like "%input-hub-name-workflow-runtime%". Then, in the settings create a new one like the following:  
 
-![DiagnosticLogSettings](images/diagnosticLogSetting.PNG)  
+![DiagnosticLogSettings](images/diagnosticLogSetting.png)  
 
 Make the setting key match what you put in the 3rd box above ("%input-hub-name-workflow-runtime%") and the value should be the name of your new hub (e.g. insights-logs-workflowruntime). Rebuild and deploy the function app.
 
