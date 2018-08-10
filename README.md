@@ -1,5 +1,5 @@
 # AzureFunctionForSplunkVS
-Azure Function sends Azure Monitor telemetry to Splunk - coded in C# / Visual Studio.
+Azure Function sends Azure Monitor telemetry to Splunk - coded in C# / Visual Studio 2017.
 
 [![Deploy to Azure](http://azuredeploy.net/deploybutton.png)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fsebastus%2FAzureFunctionDeployment%2FSplunkVS%2FazureDeploy.json)  
 
@@ -25,6 +25,20 @@ At a high level, the Azure Functions approach to delivering telemetry to Splunk 
 * Azure Function delivers the messages to Splunk
 
 Azure Functions are arranged hierarchically as a Function App containing individual functions within. An individual function is triggered by a single event hub. Regarding logs from Azure Monitor, each log category CAN BE sent to its own hub. Each Azure Resource Provider that emits logs may emit more than one log category. Similarly, metrics are sent to a hub as configured by the user. Hence, there MAY BE many hubs for the Function App to watch over. BUT, you can configure all diagnostic logs to go to the same hub. This practice is recommended for simplicity's sake.  
+
+## Adding additional hubs
+
+If you choose to allow Azure services with diagnostic logs to create their default hubs, you will need to create additional functions (in addition to the list just below) - one per additional hub. The reason for this is that each function is triggered by exactly one hub.  
+
+Do this by copying EhDiagnosticLogsExt.cs and name the copy according to the new event hub. For example, if you wanted to use the default hub for Workflow Runtime messages, the default hub name is 'insights-logs-workflowruntime'. You could name your new function 'EhWorkflowRuntimeExt', for example. This is a copy of the code:  
+
+![DiagnosticLogFunction](images/diagnosticLogFunction.png)  
+
+Change the first box to 'EhWorkflowRuntimeExt', the second to the same, and the third to something like "%input-hub-name-workflow-runtime%". Then, in the settings create a new one like the following:  
+
+![DiagnosticLogSettings](images/diagnosticLogSetting.png)  
+
+Make the setting key match what you put in the 3rd box above ("%input-hub-name-workflow-runtime%") and the value should be the name of your new hub (e.g. insights-logs-workflowruntime). Rebuild and deploy the function app. This is as simple as making your own fork of the code, add the new function & customize it, push and merge your changes to your fork, then use the "Deploy to Azure" (customized to point to your fork) button here in the README.md (above).
 
 ### Functions in the Function App
 * EhActivityLogsExt - consumes Azure Monitor Activity Logs

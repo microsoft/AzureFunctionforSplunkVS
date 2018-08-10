@@ -120,21 +120,21 @@ namespace AzureFunctionForSplunk
                     switch (provider)
                     {
                         case "MICROSOFT.SERVICEHEALTH":
-                            sourceType = Utils.GetDictionaryValue("servicehealth", Categories) ?? "amal:servicehealth";
+                            sourceType = Utils.GetDictionaryValue("servicehealth", Categories) ?? "amal:serviceHealth";
                             break;
 
                         case "MICROSOFT.RESOURCEHEALTH":
-                            sourceType = Utils.GetDictionaryValue("resourcehealth", Categories) ?? "amal:resourcehealth";
+                            sourceType = Utils.GetDictionaryValue("resourcehealth", Categories) ?? "amal:resourceHealth";
                             break;
 
                         case "MICROSOFT.INSIGHTS":
                             if (type == "AUTOSCALESETTINGS")
                             {
-                                sourceType = Utils.GetDictionaryValue("autoscalesettings", Categories) ?? "amal:autoscalesettings";
+                                sourceType = Utils.GetDictionaryValue("autoscalesettings", Categories) ?? "amal:autoscaleSettings";
                             }
                             else if (type == "ALERTRULES")
                             {
-                                sourceType = Utils.GetDictionaryValue("ascalert", Categories) ?? "amal:ascalert";
+                                sourceType = Utils.GetDictionaryValue("ascalert", Categories) ?? "amal:ascAlert";
                             }
                             else
                             {
@@ -185,7 +185,8 @@ namespace AzureFunctionForSplunk
 
         public override void Ingest(string[] records)
         {
-            // sourceType depends on both the message category and the ResourceType
+            // Subscription-based: sourceType depends on the message category and the ResourceType
+            // Tenant-based: sourceType depends on the message category and the ProviderType
 
             foreach (var record in records)
             {
@@ -201,13 +202,25 @@ namespace AzureFunctionForSplunk
                 }
 
                 var resourceType = azMonMsg.ResourceType;
+                var providerName = azMonMsg.ProviderName;
+
+                var logMessage = "";
+                var sourceType = "";
+                if (azMonMsg.TenantId.Length > 0)
+                {
+                    logMessage = $"********* ProviderName: {providerName}";
+                    sourceType = Utils.GetDictionaryValue(providerName.ToUpper() + "/" + category.ToUpper(), Categories) ?? "amdl:diagnostic";
+                }
+                else
+                {
+                    logMessage = $"********* ResourceType: {resourceType}";
+                    sourceType = Utils.GetDictionaryValue(resourceType.ToUpper() + "/" + category.ToUpper(), Categories) ?? "amdl:diagnostic";
+                }
 
                 if (category != "none")
                 {
-                    Log.Info($"********* ResourceType: {resourceType}, category: {category} *********");
+                    Log.Info($"{logMessage}, category: {category} *********");
                 }
-
-                var sourceType = Utils.GetDictionaryValue(resourceType.ToUpper() + "/" + category.ToUpper(), Categories) ?? "amdl:diagnostic";
 
                 azMonMsg.SplunkSourceType = sourceType;
 
