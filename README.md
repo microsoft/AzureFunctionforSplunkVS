@@ -38,7 +38,7 @@ Change the first box to 'EhWorkflowRuntimeExt', the second to the same, and the 
 
 ![DiagnosticLogSettings](images/diagnosticLogSetting.png)  
 
-Make the setting key match what you put in the 3rd box above ("%input-hub-name-workflow-runtime%") and the value should be the name of your new hub (e.g. insights-logs-workflowruntime). Rebuild and deploy the function app. This is as simple as making your own fork of the code, add the new function & customize it, push your changes, then use the "Deploy to Azure" button here in the README.md (above).
+Make the setting key match what you put in the 3rd box above ("%input-hub-name-workflow-runtime%") and the value should be the name of your new hub (e.g. insights-logs-workflowruntime). Rebuild and deploy the function app. This is as simple as making your own fork of the code, add the new function & customize it, push and merge your changes to your fork, then use the "Deploy to Azure" (customized to point to your fork) button here in the README.md (above).
 
 ### Functions in the Function App
 * EhActivityLogsExt - consumes Azure Monitor Activity Logs
