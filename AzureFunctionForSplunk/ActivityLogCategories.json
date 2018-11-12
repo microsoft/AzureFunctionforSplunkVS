@@ -6,5 +6,6 @@
   "autoscalesettings": "amal:autoscaleSettings",
   "ascalert": "amal:asc:alert",
   "insights": "amal:insights",
-  "security": "amal:security"
+  "security": "amal:security",
+  "windowseventlogstable":  "wineventlog:security"
 }
