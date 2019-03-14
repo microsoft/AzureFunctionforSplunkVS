@@ -37,6 +37,7 @@ namespace AzureFunctionForSplunk
     public abstract class SplunkEventMessages
     {
         public TraceWriter Log { get; set; }
+        static string outputBinding { get; set; }
 
         private string categoryFileName;
 
@@ -75,13 +76,23 @@ namespace AzureFunctionForSplunk
             {
                 splunkEventMessages.Add(item.GetSplunkEventFromMessage());
             }
-            await Utils.obHEC(splunkEventMessages, Log);
+            switch (outputBinding)
+            {
+                case "hec":
+                    await Utils.obHEC(splunkEventMessages, Log);
+                    break;
+                case "relay":
+                    await Utils.obRelay(splunkEventMessages, Log);
+                    break;
+            }
+            
         }
 
         public SplunkEventMessages(TraceWriter log)
         {
             Log = log;
             azureMonitorMessages = new List<AzMonMessage>();
+            outputBinding = Utils.getEnvironmentVariable("outputBinding");
         }
     }
 

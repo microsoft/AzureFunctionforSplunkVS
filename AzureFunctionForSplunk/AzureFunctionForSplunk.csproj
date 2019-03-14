@@ -6,6 +6,7 @@
     <Compile Remove="AzureMonitorMessage.cs" />
   </ItemGroup>
   <ItemGroup>    
+    <PackageReference Include="Microsoft.Azure.Relay" Version="1.0.0" />    
     <PackageReference Include="Microsoft.Azure.WebJobs.ServiceBus" Version="2.1.0-beta1" />    
     <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="1.0.2" />
   </ItemGroup>
