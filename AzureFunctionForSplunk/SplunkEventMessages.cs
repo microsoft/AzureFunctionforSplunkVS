@@ -65,6 +65,7 @@ namespace AzureFunctionForSplunk
         }
 
         public List<AzMonMessage> azureMonitorMessages { get; set; }
+        public int azureMonitorMessagesCount { get; set; }
         public List<string> splunkEventMessages { get; set; }
 
         public abstract void Ingest(string[] records);
@@ -183,6 +184,7 @@ namespace AzureFunctionForSplunk
                 }
 
                 azureMonitorMessages.Add(new AzMonActivityLog(expandoRecord, sourceType));
+                azureMonitorMessagesCount++;
             }
         }
     }
@@ -236,6 +238,7 @@ namespace AzureFunctionForSplunk
                 azMonMsg.SplunkSourceType = sourceType;
 
                 azureMonitorMessages.Add(azMonMsg);
+                azureMonitorMessagesCount++;
             }
         }
     }
@@ -264,6 +267,7 @@ namespace AzureFunctionForSplunk
                 azMonMsg.SplunkSourceType = sourceType;
 
                 azureMonitorMessages.Add(azMonMsg);
+                azureMonitorMessagesCount++;
             }
         }
 
@@ -283,10 +287,12 @@ namespace AzureFunctionForSplunk
                 if (((IDictionary<String,Object>)expandoRecord).ContainsKey("category"))
                 {
                     azureMonitorMessages.Add(new WadAzMonLog(expandoRecord));
+                    azureMonitorMessagesCount++;
                 }
                 else if (((IDictionary<String, Object>)expandoRecord).ContainsKey("metricName"))
                 {
                     azureMonitorMessages.Add(new WadAzMonMetric(expandoRecord));
+                    azureMonitorMessagesCount++;
                 }
             }
         }
@@ -307,10 +313,12 @@ namespace AzureFunctionForSplunk
                 if (((IDictionary<String, Object>)expandoRecord).ContainsKey("category"))
                 {
                     azureMonitorMessages.Add(new LadAzMonLog(expandoRecord));
+                    azureMonitorMessagesCount++;
                 }
                 else if (((IDictionary<String, Object>)expandoRecord).ContainsKey("metricName"))
                 {
                     azureMonitorMessages.Add(new LadAzMonMetric(expandoRecord));
+                    azureMonitorMessagesCount++;
                 }
             }
         }

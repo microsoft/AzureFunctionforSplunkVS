@@ -55,13 +55,17 @@ namespace AzureFunctionForSplunk
                 throw;
             }
 
+            int splunkMsgsCount = 0;
             if (decomposed.Count > 0)
             {
                 var splunkMsgs = (SplunkEventMessages)Activator.CreateInstance(typeof(T2), log);
                 try
                 {
                     splunkMsgs.Ingest(decomposed.ToArray());
+                    splunkMsgsCount += splunkMsgs.azureMonitorMessagesCount;
+
                     await splunkMsgs.Emit();
+                    log.Info($"C# Event Hub trigger function processed a batch of messages, splunkMsgsCount: {splunkMsgsCount}");
                 }
                 catch (Exception exEmit)
                 {
@@ -94,10 +98,10 @@ namespace AzureFunctionForSplunk
                         log.Error($"Failed to write the fault queue: {id}. {exFaultQueue.Message}");
                     }
 
+                    log.Info($"C# Event Hub trigger function faulted a batch of messages, splunkMsgsCount: {splunkMsgsCount}, batch id: {id}");
                 }
             }
 
-            log.Info($"C# Event Hub trigger function processed a batch of messages: {messages.Length}");
         }
     }
 }

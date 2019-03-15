@@ -205,16 +205,16 @@ namespace AzureFunctionForSplunk
                 }
                 catch (EndpointNotFoundException)
                 {
-                    log.Verbose("Waiting...");
-                    Thread.Sleep(1000);
+                    log.Info("Waiting...");
+                    Thread.Sleep(10000);
                 }
                 catch (RelayException)
                 {
-                    log.Verbose("Connection forcibly closed.");
+                    log.Info("Connection forcibly closed.");
                 }
                 catch (Exception ex)
                 {
-                    log.Error("Error executing function: " + ex.Message);
+                    log.Info("Error executing function: " + ex.Message);
                 }
             }
         }

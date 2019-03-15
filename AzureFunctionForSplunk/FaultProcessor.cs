@@ -16,6 +16,8 @@ namespace AzureFunctionForSplunk
             IBinder blobFaultBinder,
             TraceWriter log)
         {
+            var outputBinding = Utils.getEnvironmentVariable("outputBinding");
+
             var faultData = JsonConvert.DeserializeObject<TransmissionFaultMessage>(fault);
 
             var blobReader = await blobFaultBinder.BindAsync<CloudBlockBlob>(
@@ -26,7 +28,17 @@ namespace AzureFunctionForSplunk
             try
             {
                 List<string> faultMessages = await Task<List<string>>.Factory.StartNew(() => JsonConvert.DeserializeObject<List<string>>(json));
-                await Utils.obHEC(faultMessages, log);
+
+                switch (outputBinding)
+                {
+                    case "hec":
+                        await Utils.obHEC(faultMessages, log);
+                        break;
+                    case "relay":
+                        await Utils.obRelay(faultMessages, log);
+                        break;
+                }
+
             } catch
             {
                 log.Error($"FaultProcessor failed to send to Splunk: {faultData.id}");

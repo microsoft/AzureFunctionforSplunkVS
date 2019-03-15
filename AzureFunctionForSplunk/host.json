@@ -1,3 +1,9 @@
 {
-  
+  "functions": [
+    "EhActivityLogsExt",
+    "EhDiagnosticLogsExt",
+    "EhLadTelemetryExt",
+    "EhMetricsExt",
+    "EhWadTelemetryExt"
+  ]
 }
