@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Host;
@@ -27,10 +28,11 @@ namespace AzureFunctionForSplunk
             {
                 List<string> faultMessages = await Task<List<string>>.Factory.StartNew(() => JsonConvert.DeserializeObject<List<string>>(json));
                 await Utils.obHEC(faultMessages, log);
-            } catch
+            } catch (Exception ex)
             {
+                log.Error(ex.Message);
                 log.Error($"FaultProcessor failed to send to Splunk: {faultData.id}");
-                throw new System.Exception("FaultProcessor failed to send to Splunk");
+                throw new Exception("FaultProcessor failed to send to Splunk");
             }
 
             await blobReader.DeleteAsync();

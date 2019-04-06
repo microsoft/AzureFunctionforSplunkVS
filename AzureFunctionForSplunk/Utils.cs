@@ -170,18 +170,15 @@ namespace AzureFunctionForSplunk
                 HttpResponseMessage response = await SingleHttpClientInstance.SendToSplunk(req);
                 if (response.StatusCode != HttpStatusCode.OK)
                 {
-                    log.Info("obHEC 1");
                     throw new System.Net.Http.HttpRequestException($"StatusCode from Splunk: {response.StatusCode}, and reason: {response.ReasonPhrase}");
                 }
             }
             catch (System.Net.Http.HttpRequestException e)
             {
-                log.Info("obHEC 2");
                 throw new System.Net.Http.HttpRequestException("Sending to Splunk. Is Splunk service running?", e);
             }
             catch (Exception f)
             {
-                log.Info("obHEC 3");
                 throw new System.Exception("Sending to Splunk. Unplanned exception.", f);
             }
         }
