@@ -142,6 +142,8 @@ namespace AzureFunctionForSplunk
 
         public static async Task obHEC(List<string> standardizedEvents, TraceWriter log)
         {
+            log.Info("obHEC 1");
+
             string splunkAddress = Utils.getEnvironmentVariable("splunkAddress");
             string splunkToken = Utils.getEnvironmentVariable("splunkToken");
             if (splunkAddress.Length == 0 || splunkToken.Length == 0)
@@ -150,9 +152,13 @@ namespace AzureFunctionForSplunk
                 return;
             }
 
+            log.Info("obHEC 2");
+
             ServicePointManager.Expect100Continue = true;
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
             ServicePointManager.ServerCertificateValidationCallback += new RemoteCertificateValidationCallback(ValidateMyCert);
+
+            log.Info("obHEC 3");
 
             var newClientContent = new StringBuilder();
             foreach (string item in standardizedEvents)
@@ -160,6 +166,7 @@ namespace AzureFunctionForSplunk
                 newClientContent.Append(item);
             }
             var client = new SingleHttpClientInstance();
+            log.Info("obHEC 4");
             try
             {
                 HttpRequestMessage req = new HttpRequestMessage(HttpMethod.Post, splunkAddress);
