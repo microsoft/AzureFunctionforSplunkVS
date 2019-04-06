@@ -30,7 +30,7 @@ namespace AzureFunctionForSplunk
             } catch
             {
                 log.Error($"FaultProcessor failed to send to Splunk: {faultData.id}");
-                throw;
+                throw new System.Exception("FaultProcessor failed to send to Splunk");
             }
 
             await blobReader.DeleteAsync();
