@@ -1,3 +1,6 @@
 {
-  "functions": ["EhActivityLogsExt"]
+  "functions": [
+    "EhActivityLogsExt",
+    "EhDiagnosticLogsExt"
+  ]
 }
