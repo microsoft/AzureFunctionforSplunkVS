@@ -13,7 +13,7 @@ namespace AzureFunctionForSplunk
     {
         [FunctionName("FaultProcessor")]
         public static async Task Run(
-            [QueueTrigger("transmission-faults", Connection = "AzureWebJobsStorage")]string fault,
+            [QueueTrigger("%input-hub-name-faults%", Connection = "AzureWebJobsStorage")]string fault,
             IBinder blobFaultBinder,
             TraceWriter log)
         {
