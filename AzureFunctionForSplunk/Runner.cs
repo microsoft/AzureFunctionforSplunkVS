@@ -78,6 +78,7 @@ namespace AzureFunctionForSplunk
                     catch (Exception exFaultBlob)
                     {
                         log.Error($"Failed to write the fault blob: {id}. {exFaultBlob.Message}");
+                        throw exFaultBlob;
                     }
 
                     try
@@ -92,8 +93,11 @@ namespace AzureFunctionForSplunk
                     catch (Exception exFaultQueue)
                     {
                         log.Error($"Failed to write the fault queue: {id}. {exFaultQueue.Message}");
+                        throw exFaultQueue;
                     }
 
+                    log.Error($"Error emitting messages to Splunk HEC: {exEmit.Message}. The messages were held in the fault processor queue for handling once the error is resolved.");
+                    throw exEmit;
                 }
             }
 

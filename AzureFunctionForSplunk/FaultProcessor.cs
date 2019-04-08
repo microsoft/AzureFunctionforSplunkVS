@@ -37,7 +37,7 @@ namespace AzureFunctionForSplunk
 
             await blobReader.DeleteAsync();
 
-            log.Info($"C# Queue trigger function processed: {faultData.id}");
+            log.Info($"C# Queue trigger function FaultProcessor processed: {faultData.id}");
         }
     }
 }
