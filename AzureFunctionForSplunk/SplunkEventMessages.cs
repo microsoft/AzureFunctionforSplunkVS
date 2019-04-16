@@ -70,12 +70,30 @@ namespace AzureFunctionForSplunk
 
         public async Task Emit()
         {
+            string outputBinding = Utils.getEnvironmentVariable("outputBinding");
+            if (outputBinding.Length == 0)
+            {
+                Log.Error("Value for outputBinding is required. Permitted values are: 'proxy', 'hec'.");
+                return;
+            }
+
             splunkEventMessages = new List<string>();
             foreach (var item in azureMonitorMessages)
             {
                 splunkEventMessages.Add(item.GetSplunkEventFromMessage());
             }
-            await Utils.obHEC(splunkEventMessages, Log);
+
+            switch (outputBinding)
+            {
+                case "hec":
+                    await Utils.obHEC(splunkEventMessages, Log);
+                    break;
+                case "proxy":
+                    await Utils.obProxy(splunkEventMessages, Log);
+                    break;
+            }
+
+
         }
 
         public SplunkEventMessages(TraceWriter log)
