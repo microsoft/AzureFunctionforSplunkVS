@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Host;
@@ -12,7 +13,7 @@ namespace AzureFunctionForSplunk
     {
         [FunctionName("FaultProcessor")]
         public static async Task Run(
-            [QueueTrigger("transmission-faults", Connection = "AzureWebJobsStorage")]string fault,
+            [QueueTrigger("%input-hub-name-faults%", Connection = "AzureWebJobsStorage")]string fault,
             IBinder blobFaultBinder,
             TraceWriter log)
         {
@@ -27,15 +28,16 @@ namespace AzureFunctionForSplunk
             {
                 List<string> faultMessages = await Task<List<string>>.Factory.StartNew(() => JsonConvert.DeserializeObject<List<string>>(json));
                 await Utils.obHEC(faultMessages, log);
-            } catch
+            } catch (Exception ex)
             {
+                log.Error(ex.Message);
                 log.Error($"FaultProcessor failed to send to Splunk: {faultData.id}");
-                return;
+                throw new Exception("FaultProcessor failed to send to Splunk");
             }
 
             await blobReader.DeleteAsync();
 
-            log.Info($"C# Queue trigger function processed: {faultData.id}");
+            log.Info($"C# Queue trigger function FaultProcessor processed: {faultData.id}");
         }
     }
 }
