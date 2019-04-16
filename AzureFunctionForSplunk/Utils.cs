@@ -160,7 +160,7 @@ namespace AzureFunctionForSplunk
                 newClientContent.Append(item);
             }
 
-            log.Verbose(newClientContent.ToString());
+            log.Info(newClientContent.ToString());
 
             var client = new SingleHttpClientInstance();
             try
