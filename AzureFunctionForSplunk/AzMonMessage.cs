@@ -33,13 +33,27 @@ namespace AzureFunctionForSplunk
 {
     public class AzMonMessage
     {
-        protected ExpandoObject Message { get; set; }
+        private ExpandoObject _Message;
+        protected ExpandoObject Message
+        {
+            get
+            {
+                return _Message;
+            }
+            set
+            {
+                this._Message = value;
+                MessageTime = ((dynamic)value).time;
+            }
+        }
+
         protected string ResourceId { get; set; }
         public string SubscriptionId { get; set; }
         public string ResourceType { get; set; }
         public string ResourceName { get; set; }
         public string ResourceGroup { get; set; }
         public string SplunkSourceType { get; set; }
+        public DateTime MessageTime { get; set; }
         public string TenantId { get; set; }
         public string ProviderName { get; set; }
 
@@ -60,11 +74,19 @@ namespace AzureFunctionForSplunk
 
             var s = "{";
             s += "\"sourcetype\": \"" + SplunkSourceType + "\",";
+            s += "\"time\": \"" + unixTime().ToString() + "\",";
             s += "\"event\": " + json;
             s += "}";
 
             return s;
 
+        }
+
+        double unixTime()
+        {
+            double unixTimestamp = MessageTime.Ticks - new DateTime(1970, 1, 1).Ticks;
+            unixTimestamp /= TimeSpan.TicksPerSecond;
+            return unixTimestamp;
         }
 
         protected void GetStandardProperties()
