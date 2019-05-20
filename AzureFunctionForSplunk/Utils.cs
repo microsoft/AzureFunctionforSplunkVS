@@ -24,6 +24,7 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION 
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
+using Microsoft.Azure.Services.AppAuthentication;
 using Microsoft.Azure.WebJobs.Host;
 using Newtonsoft.Json;
 using System;
@@ -149,6 +150,11 @@ namespace AzureFunctionForSplunk
                 return;
             }
 
+            var serviceResourceIDURI = "https://azuremonitorfunctionproxy.asdttools.onmicrosoft.com";
+
+            var azureServiceTokenProvider = new AzureServiceTokenProvider();
+            string accessToken = await azureServiceTokenProvider.GetAccessTokenAsync(serviceResourceIDURI);
+
             ServicePointManager.Expect100Continue = true;
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
             ServicePointManager.ServerCertificateValidationCallback += new RemoteCertificateValidationCallback(ValidateMyCert);
@@ -162,11 +168,17 @@ namespace AzureFunctionForSplunk
             var client = new SingleHttpClientInstance();
             try
             {
-                HttpRequestMessage req = new HttpRequestMessage(HttpMethod.Post, proxyAddress);
-                req.Headers.Accept.Clear();
-                req.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                req.Content = new StringContent(newClientContent.ToString(), Encoding.UTF8, "application/json");
-                HttpResponseMessage response = await SingleHttpClientInstance.SendToService(req);
+                var httpRequestMessage = new HttpRequestMessage
+                {
+                    Method = HttpMethod.Post,
+                    RequestUri = new Uri(proxyAddress),
+                    Headers = {
+                        { HttpRequestHeader.Authorization.ToString(), "Bearer " + accessToken }
+                    },
+                    Content = new StringContent(newClientContent.ToString(), Encoding.UTF8, "application/json")
+                };
+
+                HttpResponseMessage response = await SingleHttpClientInstance.SendToService(httpRequestMessage);
                 if (response.StatusCode != HttpStatusCode.OK)
                 {
                     throw new System.Net.Http.HttpRequestException($"StatusCode from Proxy Function: {response.StatusCode}, and reason: {response.ReasonPhrase}");
