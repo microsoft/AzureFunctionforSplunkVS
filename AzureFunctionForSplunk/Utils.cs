@@ -150,7 +150,12 @@ namespace AzureFunctionForSplunk
                 return;
             }
 
-            var serviceResourceIDURI = "https://azuremonitorfunctionproxy.asdttools.onmicrosoft.com";
+            string serviceResourceIDURI = Utils.getEnvironmentVariable("serviceResourceIDURI");
+            if (serviceResourceIDURI.Length == 0)
+            {
+                log.Error("The AAD service resource ID URI (serviceResourceIDURI) of the proxy app is required.");
+                return;
+            }
 
             var azureServiceTokenProvider = new AzureServiceTokenProvider();
             string accessToken = await azureServiceTokenProvider.GetAccessTokenAsync(serviceResourceIDURI);
