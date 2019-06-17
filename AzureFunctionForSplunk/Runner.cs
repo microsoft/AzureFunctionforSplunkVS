@@ -27,6 +27,7 @@
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Host;
 using Microsoft.WindowsAzure.Storage.Blob;
+using Microsoft.Extensions.Logging; 
 using Microsoft.WindowsAzure.Storage.Queue;
 using System.Threading.Tasks;
 using System.Collections.Generic;
@@ -42,7 +43,7 @@ namespace AzureFunctionForSplunk
             string[] messages,
             IBinder blobFaultBinder,
             Binder queueFaultBinder,
-            TraceWriter log)
+            ILogger log)
         {
             var azMonMsgs = (AzMonMessages)Activator.CreateInstance(typeof(T1), log);
             List<string> decomposed = null;
@@ -77,7 +78,7 @@ namespace AzureFunctionForSplunk
                     }
                     catch (Exception exFaultBlob)
                     {
-                        log.Error($"Failed to write the fault blob: {id}. {exFaultBlob.Message}");
+                        log.LogError($"Failed to write the fault blob: {id}. {exFaultBlob.Message}");
                         throw exFaultBlob;
                     }
 
@@ -92,16 +93,16 @@ namespace AzureFunctionForSplunk
                     }
                     catch (Exception exFaultQueue)
                     {
-                        log.Error($"Failed to write the fault queue: {id}. {exFaultQueue.Message}");
+                        log.LogError($"Failed to write the fault queue: {id}. {exFaultQueue.Message}");
                         throw exFaultQueue;
                     }
 
-                    log.Error($"Error emitting messages to Splunk HEC: {exEmit.Message}. The messages were held in the fault processor queue for handling once the error is resolved.");
+                    log.LogError($"Error emitting messages to Splunk HEC: {exEmit.Message}. The messages were held in the fault processor queue for handling once the error is resolved.");
                     throw exEmit;
                 }
             }
 
-            log.Info($"C# Event Hub trigger function processed a batch of messages: {messages.Length}");
+            log.LogInformation($"C# Event Hub trigger function processed a batch of messages: {messages.Length}");
         }
     }
 }

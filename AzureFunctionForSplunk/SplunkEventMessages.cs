@@ -31,12 +31,13 @@ using System;
 using System.Collections.Generic;
 using System.Dynamic;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
 namespace AzureFunctionForSplunk
 {
     public abstract class SplunkEventMessages
     {
-        public TraceWriter Log { get; set; }
+        public ILogger Log { get; set; }
 
         private string categoryFileName;
 
@@ -58,7 +59,7 @@ namespace AzureFunctionForSplunk
                 }
                 catch (Exception ex)
                 {
-                    Log.Error($"Error getting categories json file: {filename}. {ex.Message}");
+                    Log.LogError($"Error getting categories json file: {filename}. {ex.Message}");
                 }
             }
         }
@@ -73,7 +74,7 @@ namespace AzureFunctionForSplunk
             string outputBinding = Utils.getEnvironmentVariable("outputBinding");
             if (outputBinding.Length == 0)
             {
-                Log.Error("Value for outputBinding is required. Permitted values are: 'proxy', 'hec'.");
+                Log.LogError("Value for outputBinding is required. Permitted values are: 'proxy', 'hec'.");
                 return;
             }
 
@@ -96,7 +97,7 @@ namespace AzureFunctionForSplunk
 
         }
 
-        public SplunkEventMessages(TraceWriter log)
+        public SplunkEventMessages(ILogger log)
         {
             Log = log;
             azureMonitorMessages = new List<AzMonMessage>();
@@ -105,7 +106,7 @@ namespace AzureFunctionForSplunk
 
     public class ActivityLogsSplunkEventMessages: SplunkEventMessages
     {
-        public ActivityLogsSplunkEventMessages(TraceWriter log): base(log)
+        public ActivityLogsSplunkEventMessages(ILogger log): base(log)
         {
             CategoryFileName = "ActivityLogCategories.json";
         }
@@ -196,7 +197,7 @@ namespace AzureFunctionForSplunk
 
     public class DiagnosticLogsSplunkEventMessages : SplunkEventMessages
     {
-        public DiagnosticLogsSplunkEventMessages(TraceWriter log) : base(log)
+        public DiagnosticLogsSplunkEventMessages(ILogger log) : base(log)
         {
             CategoryFileName = "DiagnosticLogCategories.json";
         }
@@ -237,7 +238,7 @@ namespace AzureFunctionForSplunk
 
                 if (category != "none")
                 {
-                    Log.Info($"{logMessage}, category: {category} *********");
+                    Log.LogInformation($"{logMessage}, category: {category} *********");
                 }
 
                 azMonMsg.SplunkSourceType = sourceType;
@@ -249,7 +250,7 @@ namespace AzureFunctionForSplunk
 
     public class MetricsSplunkEventMessages : SplunkEventMessages
     {
-        public MetricsSplunkEventMessages(TraceWriter log) : base(log)
+        public MetricsSplunkEventMessages(ILogger log) : base(log)
         {
             CategoryFileName = "MetricsCategories.json";
         }
@@ -278,7 +279,7 @@ namespace AzureFunctionForSplunk
 
     public class WadSplunkEventMessages : SplunkEventMessages
     {
-        public WadSplunkEventMessages(TraceWriter log) : base(log) { }
+        public WadSplunkEventMessages(ILogger log) : base(log) { }
 
         public override void Ingest(string[] records)
         {
@@ -302,7 +303,7 @@ namespace AzureFunctionForSplunk
 
     public class LadSplunkEventMessages : SplunkEventMessages
     {
-        public LadSplunkEventMessages(TraceWriter log) : base(log) { }
+        public LadSplunkEventMessages(ILogger log) : base(log) { }
 
         public override void Ingest(string[] records)
         {

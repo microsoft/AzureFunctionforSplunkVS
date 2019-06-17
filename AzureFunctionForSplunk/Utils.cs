@@ -25,6 +25,7 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 using Microsoft.Azure.Services.AppAuthentication;
+using Microsoft.Extensions.Logging;
 using Microsoft.Azure.WebJobs.Host;
 using Newtonsoft.Json;
 using System;
@@ -141,19 +142,19 @@ namespace AzureFunctionForSplunk
             return false;
         }
 
-        public static async Task obProxy(List<string> standardizedEvents, TraceWriter log)
+        public static async Task obProxy(List<string> standardizedEvents, ILogger log)
         {
             string proxyAddress = Utils.getEnvironmentVariable("proxyAddress");
             if (proxyAddress.Length == 0)
             {
-                log.Error("Address of proxy function is required.");
+                log.LogError("Address of proxy function is required.");
                 return;
             }
 
             string serviceResourceIDURI = Utils.getEnvironmentVariable("serviceResourceIDURI");
             if (serviceResourceIDURI.Length == 0)
             {
-                log.Error("The AAD service resource ID URI (serviceResourceIDURI) of the proxy app is required.");
+                log.LogError("The AAD service resource ID URI (serviceResourceIDURI) of the proxy app is required.");
                 return;
             }
 
@@ -199,13 +200,13 @@ namespace AzureFunctionForSplunk
             }
         }
 
-        public static async Task obHEC(List<string> standardizedEvents, TraceWriter log)
+        public static async Task obHEC(List<string> standardizedEvents, ILogger log)
         {
             string splunkAddress = Utils.getEnvironmentVariable("splunkAddress");
             string splunkToken = Utils.getEnvironmentVariable("splunkToken");
             if (splunkAddress.Length == 0 || splunkToken.Length == 0)
             {
-                log.Error("Values for splunkAddress and splunkToken are required.");
+                log.LogError("Values for splunkAddress and splunkToken are required.");
                 return;
             }
 
@@ -219,7 +220,7 @@ namespace AzureFunctionForSplunk
                 newClientContent.Append(item);
             }
 
-            log.Info(newClientContent.ToString());
+            log.LogInformation(newClientContent.ToString());
 
             var client = new SingleHttpClientInstance();
             try
