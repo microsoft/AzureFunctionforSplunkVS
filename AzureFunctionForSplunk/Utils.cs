@@ -24,6 +24,7 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION 
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
+using Microsoft.Azure.Services.AppAuthentication;
 using Microsoft.Azure.WebJobs.Host;
 using Newtonsoft.Json;
 using System;
@@ -119,7 +120,7 @@ namespace AzureFunctionForSplunk
                 HttpClient = new HttpClient();
             }
 
-            public static async Task<HttpResponseMessage> SendToSplunk(HttpRequestMessage req)
+            public static async Task<HttpResponseMessage> SendToService(HttpRequestMessage req)
             {
                 HttpResponseMessage response = await HttpClient.SendAsync(req);
                 return response;
@@ -138,6 +139,64 @@ namespace AzureFunctionForSplunk
                 return true;
 
             return false;
+        }
+
+        public static async Task obProxy(List<string> standardizedEvents, TraceWriter log)
+        {
+            string proxyAddress = Utils.getEnvironmentVariable("proxyAddress");
+            if (proxyAddress.Length == 0)
+            {
+                log.Error("Address of proxy function is required.");
+                return;
+            }
+
+            string serviceResourceIDURI = Utils.getEnvironmentVariable("serviceResourceIDURI");
+            if (serviceResourceIDURI.Length == 0)
+            {
+                log.Error("The AAD service resource ID URI (serviceResourceIDURI) of the proxy app is required.");
+                return;
+            }
+
+            var azureServiceTokenProvider = new AzureServiceTokenProvider();
+            string accessToken = await azureServiceTokenProvider.GetAccessTokenAsync(serviceResourceIDURI);
+
+            ServicePointManager.Expect100Continue = true;
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+            ServicePointManager.ServerCertificateValidationCallback += new RemoteCertificateValidationCallback(ValidateMyCert);
+
+            var newClientContent = new StringBuilder();
+            foreach (string item in standardizedEvents)
+            {
+                newClientContent.Append(item);
+            }
+
+            var client = new SingleHttpClientInstance();
+            try
+            {
+                var httpRequestMessage = new HttpRequestMessage
+                {
+                    Method = HttpMethod.Post,
+                    RequestUri = new Uri(proxyAddress),
+                    Headers = {
+                        { HttpRequestHeader.Authorization.ToString(), "Bearer " + accessToken }
+                    },
+                    Content = new StringContent(newClientContent.ToString(), Encoding.UTF8, "application/json")
+                };
+
+                HttpResponseMessage response = await SingleHttpClientInstance.SendToService(httpRequestMessage);
+                if (response.StatusCode != HttpStatusCode.OK)
+                {
+                    throw new System.Net.Http.HttpRequestException($"StatusCode from Proxy Function: {response.StatusCode}, and reason: {response.ReasonPhrase}");
+                }
+            }
+            catch (System.Net.Http.HttpRequestException e)
+            {
+                throw new System.Net.Http.HttpRequestException("Sending to Proxy Function. Is the service running?", e);
+            }
+            catch (Exception f)
+            {
+                throw new System.Exception("Sending to Proxy Function. Unplanned exception.", f);
+            }
         }
 
         public static async Task obHEC(List<string> standardizedEvents, TraceWriter log)
@@ -159,6 +218,9 @@ namespace AzureFunctionForSplunk
             {
                 newClientContent.Append(item);
             }
+
+            log.Info(newClientContent.ToString());
+
             var client = new SingleHttpClientInstance();
             try
             {
@@ -167,7 +229,7 @@ namespace AzureFunctionForSplunk
                 req.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
                 req.Headers.Add("Authorization", "Splunk " + splunkToken);
                 req.Content = new StringContent(newClientContent.ToString(), Encoding.UTF8, "application/json");
-                HttpResponseMessage response = await SingleHttpClientInstance.SendToSplunk(req);
+                HttpResponseMessage response = await SingleHttpClientInstance.SendToService(req);
                 if (response.StatusCode != HttpStatusCode.OK)
                 {
                     throw new System.Net.Http.HttpRequestException($"StatusCode from Splunk: {response.StatusCode}, and reason: {response.ReasonPhrase}");
