@@ -37,11 +37,12 @@ namespace AzureFunctionForSplunk
         public static async Task Run(
             [EventHubTrigger("%input-hub-name-diagnostic-logs%", Connection = "hubConnection", ConsumerGroup = "%consumer-group-diagnostic-logs%")]string[] messages,
             IBinder blobFaultBinder,
+            IBinder incomingBatchBinder,
             Binder queueFaultBinder,
             ILogger log)
         {
             var runner = new Runner();
-            await runner.Run<DiagnosticLogMessages, DiagnosticLogsSplunkEventMessages>(messages, blobFaultBinder, queueFaultBinder, log);
+            await runner.Run<DiagnosticLogMessages, DiagnosticLogsSplunkEventMessages>(messages, blobFaultBinder, queueFaultBinder, incomingBatchBinder, log);
         }
     }
 }

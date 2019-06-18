@@ -43,13 +43,36 @@ namespace AzureFunctionForSplunk
             string[] messages,
             IBinder blobFaultBinder,
             Binder queueFaultBinder,
+            IBinder incomingBatchBinder,
             ILogger log)
         {
+            var batchId = Guid.NewGuid().ToString();
+
+            bool logIncoming = Utils.getEnvironmentVariable("logIncomingBatches").ToLower() == "true";
+            
             var azMonMsgs = (AzMonMessages)Activator.CreateInstance(typeof(T1), log);
             List<string> decomposed = null;
+
             try
             {
                 decomposed = azMonMsgs.DecomposeIncomingBatch(messages);
+
+                if (logIncoming)
+                {
+                    try
+                    {
+                        var blobWriter = await incomingBatchBinder.BindAsync<CloudBlockBlob>(
+                            new BlobAttribute($"transmission-incoming/{batchId}", FileAccess.ReadWrite));
+
+                        await blobWriter.UploadTextAsync(String.Join(",", messages));
+                    }
+                    catch (Exception exIncomingBlob)
+                    {
+                        log.LogError($"Failed to log the incoming transmission blob: {batchId}. {exIncomingBlob.Message}");
+                        throw exIncomingBlob;
+                    }
+                }
+
             }
             catch (Exception)
             {
@@ -66,25 +89,24 @@ namespace AzureFunctionForSplunk
                 }
                 catch (Exception exEmit)
                 {
-                    var id = Guid.NewGuid().ToString();
 
                     try
                     {
                         var blobWriter = await blobFaultBinder.BindAsync<CloudBlockBlob>(
-                            new BlobAttribute($"transmission-faults/{id}", FileAccess.ReadWrite));
+                            new BlobAttribute($"transmission-faults/{batchId}", FileAccess.ReadWrite));
 
                         string json = await Task<string>.Factory.StartNew(() => JsonConvert.SerializeObject(splunkMsgs.splunkEventMessages));
                         await blobWriter.UploadTextAsync(json);
                     }
                     catch (Exception exFaultBlob)
                     {
-                        log.LogError($"Failed to write the fault blob: {id}. {exFaultBlob.Message}");
+                        log.LogError($"Failed to write the fault blob: {batchId}. {exFaultBlob.Message}");
                         throw exFaultBlob;
                     }
 
                     try
                     {
-                        var qMsg = new TransmissionFaultMessage { id = id, type = typeof(T2).ToString() };
+                        var qMsg = new TransmissionFaultMessage { id = batchId, type = typeof(T2).ToString() };
                         string qMsgJson = JsonConvert.SerializeObject(qMsg);
 
                         var queueWriter = await queueFaultBinder.BindAsync<CloudQueue>(
@@ -93,11 +115,11 @@ namespace AzureFunctionForSplunk
                     }
                     catch (Exception exFaultQueue)
                     {
-                        log.LogError($"Failed to write the fault queue: {id}. {exFaultQueue.Message}");
+                        log.LogError($"Failed to write the fault queue: {batchId}. {exFaultQueue.Message}");
                         throw exFaultQueue;
                     }
 
-                    log.LogError($"Error emitting messages to Splunk HEC: {exEmit.Message}. The messages were held in the fault processor queue for handling once the error is resolved.");
+                    log.LogError($"Error emitting messages to output binding: {exEmit.Message}. The messages were held in the fault processor queue for handling once the error is resolved.");
                     throw exEmit;
                 }
             }

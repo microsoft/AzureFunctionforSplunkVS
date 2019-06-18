@@ -37,11 +37,12 @@ namespace AzureFunctionForSplunk
         public static async Task Run(
             [EventHubTrigger("%input-hub-name-wad%", Connection = "hubConnection", ConsumerGroup = "%consumer-group-wad%")]string[] messages,
             IBinder blobFaultBinder,
+            IBinder incomingBatchBinder,
             Binder queueFaultBinder,
             ILogger log)
         {
             var runner = new Runner();
-            await runner.Run<WadMessages, WadSplunkEventMessages>(messages, blobFaultBinder, queueFaultBinder, log);
+            await runner.Run<WadMessages, WadSplunkEventMessages>(messages, blobFaultBinder, queueFaultBinder, incomingBatchBinder, log);
         }
     }
 }
