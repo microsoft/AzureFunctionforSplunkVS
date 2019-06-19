@@ -148,55 +148,62 @@ namespace AzureFunctionForSplunk
             if (proxyAddress.Length == 0)
             {
                 log.LogError("Address of proxy function is required.");
-                return;
+                throw new ArgumentException();
             }
 
             string serviceResourceIDURI = Utils.getEnvironmentVariable("serviceResourceIDURI");
             if (serviceResourceIDURI.Length == 0)
             {
                 log.LogError("The AAD service resource ID URI (serviceResourceIDURI) of the proxy app is required.");
-                return;
+                throw new ArgumentException();
             }
 
-            var azureServiceTokenProvider = new AzureServiceTokenProvider();
-            string accessToken = await azureServiceTokenProvider.GetAccessTokenAsync(serviceResourceIDURI);
+            string accessToken = "";
+            try
+            {
+                var azureServiceTokenProvider = new AzureServiceTokenProvider("RunAs=App;AppId=f7550d72-1cfd-42da-82b9-b1ec64436e73;TenantId=b8b4c61c-f1ca-4aff-a0bd-9c6f01c3eca5;AppKey=a35f0723-ab8d-468e-b7e1-ab6ab39f3a5f");
+
+                accessToken = await azureServiceTokenProvider.GetAccessTokenAsync(serviceResourceIDURI);
+            } catch (Exception ex)
+            {
+                log.LogError($"Error acquiring token from AzureServiceTokenProvider: {ex.Message}");
+                throw;
+            }
 
             ServicePointManager.Expect100Continue = true;
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
             ServicePointManager.ServerCertificateValidationCallback += new RemoteCertificateValidationCallback(ValidateMyCert);
 
-            var newClientContent = new StringBuilder();
+            var client = new SingleHttpClientInstance();
+
             foreach (string item in standardizedEvents)
             {
-                newClientContent.Append(item);
-            }
-
-            var client = new SingleHttpClientInstance();
-            try
-            {
-                var httpRequestMessage = new HttpRequestMessage
+                try
                 {
-                    Method = HttpMethod.Post,
-                    RequestUri = new Uri(proxyAddress),
-                    Headers = {
-                        { HttpRequestHeader.Authorization.ToString(), "Bearer " + accessToken }
-                    },
-                    Content = new StringContent(newClientContent.ToString(), Encoding.UTF8, "application/json")
-                };
+                    var httpRequestMessage = new HttpRequestMessage
+                    {
+                        Method = HttpMethod.Post,
+                        RequestUri = new Uri(proxyAddress),
+                        Headers = {
+                            { HttpRequestHeader.Authorization.ToString(), "Bearer " + accessToken }
+                        },
+                        Content = new StringContent(item, Encoding.UTF8, "application/json")
+                    };
 
-                HttpResponseMessage response = await SingleHttpClientInstance.SendToService(httpRequestMessage);
-                if (response.StatusCode != HttpStatusCode.OK)
-                {
-                    throw new System.Net.Http.HttpRequestException($"StatusCode from Proxy Function: {response.StatusCode}, and reason: {response.ReasonPhrase}");
+                    HttpResponseMessage response = await SingleHttpClientInstance.SendToService(httpRequestMessage);
+                    if (response.StatusCode != HttpStatusCode.OK)
+                    {
+                        throw new System.Net.Http.HttpRequestException($"StatusCode from Proxy Function: {response.StatusCode}, and reason: {response.ReasonPhrase}");
+                    }
                 }
-            }
-            catch (System.Net.Http.HttpRequestException e)
-            {
-                throw new System.Net.Http.HttpRequestException("Sending to Proxy Function. Is the service running?", e);
-            }
-            catch (Exception f)
-            {
-                throw new System.Exception("Sending to Proxy Function. Unplanned exception.", f);
+                catch (System.Net.Http.HttpRequestException e)
+                {
+                    throw new System.Net.Http.HttpRequestException("Sending to Proxy Function. Is the service running?", e);
+                }
+                catch (Exception f)
+                {
+                    throw new System.Exception("Sending to Proxy Function. Unplanned exception.", f);
+                }
             }
         }
 
