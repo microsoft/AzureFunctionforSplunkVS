@@ -158,10 +158,14 @@ namespace AzureFunctionForSplunk
                 throw new ArgumentException();
             }
 
+            string astpConnection = Utils.getEnvironmentVariable("astpConnectionString");
+
             string accessToken = "";
             try
             {
-                var azureServiceTokenProvider = new AzureServiceTokenProvider();
+                var azureServiceTokenProvider = new AzureServiceTokenProvider(
+                    connectionString: astpConnection
+                );
 
                 accessToken = await azureServiceTokenProvider.GetAccessTokenAsync(serviceResourceIDURI);
             } catch (Exception ex)
@@ -176,34 +180,36 @@ namespace AzureFunctionForSplunk
 
             var client = new SingleHttpClientInstance();
 
+            StringBuilder bulkTransmission = new StringBuilder();
             foreach (string item in standardizedEvents)
             {
-                try
+                bulkTransmission.Append(item);
+            }
+            try
+            {
+                var httpRequestMessage = new HttpRequestMessage
                 {
-                    var httpRequestMessage = new HttpRequestMessage
-                    {
-                        Method = HttpMethod.Post,
-                        RequestUri = new Uri(proxyAddress),
-                        Headers = {
-                            { HttpRequestHeader.Authorization.ToString(), "Bearer " + accessToken }
-                        },
-                        Content = new StringContent(item, Encoding.UTF8, "application/json")
-                    };
+                    Method = HttpMethod.Post,
+                    RequestUri = new Uri(proxyAddress),
+                    Headers = {
+                        { HttpRequestHeader.Authorization.ToString(), "Bearer " + accessToken }
+                    },
+                    Content = new StringContent(bulkTransmission.ToString(), Encoding.UTF8)
+                };
 
-                    HttpResponseMessage response = await SingleHttpClientInstance.SendToService(httpRequestMessage);
-                    if (response.StatusCode != HttpStatusCode.OK)
-                    {
-                        throw new System.Net.Http.HttpRequestException($"StatusCode from Proxy Function: {response.StatusCode}, and reason: {response.ReasonPhrase}");
-                    }
-                }
-                catch (System.Net.Http.HttpRequestException e)
+                HttpResponseMessage response = await SingleHttpClientInstance.SendToService(httpRequestMessage);
+                if (response.StatusCode != HttpStatusCode.OK)
                 {
-                    throw new System.Net.Http.HttpRequestException("Sending to Proxy Function. Is the service running?", e);
+                    throw new System.Net.Http.HttpRequestException($"StatusCode from Proxy Function: {response.StatusCode}, and reason: {response.ReasonPhrase}");
                 }
-                catch (Exception f)
-                {
-                    throw new System.Exception("Sending to Proxy Function. Unplanned exception.", f);
-                }
+            }
+            catch (System.Net.Http.HttpRequestException e)
+            {
+                throw new System.Net.Http.HttpRequestException("Sending to Proxy Function. Is the service running?", e);
+            }
+            catch (Exception f)
+            {
+                throw new System.Exception("Sending to Proxy Function. Unplanned exception.", f);
             }
         }
 
