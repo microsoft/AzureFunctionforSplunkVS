@@ -231,7 +231,7 @@ namespace AzureFunctionForSplunk
                         Method = HttpMethod.Post,
                         RequestUri = new Uri(splunkAddress),
                         Headers = {
-                            { HttpRequestHeader.Authorization.ToString(), "Bearer " + splunkToken }
+                            { HttpRequestHeader.Authorization.ToString(), "Splunk " + splunkToken }
                         },
                         Content = new StringContent(item, Encoding.UTF8, "application/json")
                     };
