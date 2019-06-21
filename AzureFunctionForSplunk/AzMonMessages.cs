@@ -27,12 +27,13 @@
 using Microsoft.Azure.WebJobs.Host;
 using Newtonsoft.Json;
 using System.Collections.Generic;
+using Microsoft.Extensions.Logging;
 
 namespace AzureFunctionForSplunk
 {
     public abstract class AzMonMessages
     {
-        public TraceWriter Log { get; set; }
+        public ILogger Log { get; set; }
 
         public virtual List<string> DecomposeIncomingBatch(string[] messages)
         {
@@ -54,14 +55,14 @@ namespace AzureFunctionForSplunk
                     }
                 } else
                 {
-                    Log.Error("AzMonMessages: invalid message structure, missing 'records'");
+                    Log.LogError("AzMonMessages: invalid message structure, missing 'records'");
                 }
             }
 
             return decomposed;
         }
 
-        public AzMonMessages(TraceWriter log)
+        public AzMonMessages(ILogger log)
         {
             Log = log;
         }
@@ -70,27 +71,27 @@ namespace AzureFunctionForSplunk
 
     public class ActivityLogMessages : AzMonMessages
     {
-        public ActivityLogMessages(TraceWriter log) : base(log) { }
+        public ActivityLogMessages(ILogger log) : base(log) { }
     }
 
     public class DiagnosticLogMessages : AzMonMessages
     {
-        public DiagnosticLogMessages(TraceWriter log) : base(log) { }
+        public DiagnosticLogMessages(ILogger log) : base(log) { }
     }
 
     public class MetricMessages : AzMonMessages
     {
-        public MetricMessages(TraceWriter log) : base(log) { }
+        public MetricMessages(ILogger log) : base(log) { }
     }
 
     public class WadMessages : AzMonMessages
     {
-        public WadMessages(TraceWriter log): base(log) { }
+        public WadMessages(ILogger log): base(log) { }
     }
 
     public class LadMessages : AzMonMessages
     {
-        public LadMessages(TraceWriter log) : base(log) { }
+        public LadMessages(ILogger log) : base(log) { }
 
         public override List<string> DecomposeIncomingBatch(string[] messages)
         {

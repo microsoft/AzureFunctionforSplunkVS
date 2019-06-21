@@ -1,6 +1,4 @@
 {
-  "functions": [
-    "EhActivityLogsExt",
-    "EhDiagnosticLogsExt"
-  ]
+  "version": "2.0",
+  "functions": ["EhActivityLogsExt"]
 }

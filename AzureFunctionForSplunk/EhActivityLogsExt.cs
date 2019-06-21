@@ -26,7 +26,8 @@
 //
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Host;
-using Microsoft.Azure.WebJobs.ServiceBus;
+using Microsoft.Azure.EventHubs;
+using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
 
 namespace AzureFunctionForSplunk
@@ -37,11 +38,12 @@ namespace AzureFunctionForSplunk
         public static async Task Run(
             [EventHubTrigger("%input-hub-name-activity-log%", Connection = "hubConnection", ConsumerGroup = "%consumer-group-activity-log%")]string[] messages,
             IBinder blobFaultBinder,
+            IBinder incomingBatchBinder,
             Binder queueFaultBinder, 
-            TraceWriter log)
+            ILogger log)
         {
             var runner = new Runner();
-            await runner.Run<ActivityLogMessages, ActivityLogsSplunkEventMessages>(messages, blobFaultBinder, queueFaultBinder, log);
+            await runner.Run<ActivityLogMessages, ActivityLogsSplunkEventMessages>(messages, blobFaultBinder, queueFaultBinder, incomingBatchBinder, log);
         }
     }
 }
