@@ -18,22 +18,40 @@ namespace AzureFunctionForSplunk
             IBinder blobFaultBinder,
             ILogger log)
         {
+            string outputBinding = Utils.getEnvironmentVariable("outputBinding").ToLower();
+            if (outputBinding.Length == 0)
+            {
+                log.LogError("Value for outputBinding is required. Permitted values are: 'proxy', 'hec'.");
+                return;
+            }
+
             var faultData = JsonConvert.DeserializeObject<TransmissionFaultMessage>(fault);
 
             var blobReader = await blobFaultBinder.BindAsync<CloudBlockBlob>(
                     new BlobAttribute($"transmission-faults/{faultData.id}", FileAccess.ReadWrite));
 
             var json = await blobReader.DownloadTextAsync();
-            
+
             try
             {
                 List<string> faultMessages = await Task<List<string>>.Factory.StartNew(() => JsonConvert.DeserializeObject<List<string>>(json));
-                await Utils.obHEC(faultMessages, log);
-            } catch (Exception ex)
+
+                switch (outputBinding)
+                {
+                    case "hec":
+                        await Utils.obHEC(faultMessages, log);
+                        break;
+                    case "proxy":
+                        await Utils.obProxy(faultMessages, log);
+                        break;
+                }
+
+            }
+            catch (Exception ex)
             {
                 log.LogError(ex.Message);
-                log.LogError($"FaultProcessor failed to send to Splunk: {faultData.id}");
-                throw new Exception("FaultProcessor failed to send to Splunk");
+                log.LogError($"FaultProcessor failed to transmit: {faultData.id}");
+                throw new Exception("FaultProcessor failed to transmit");
             }
 
             await blobReader.DeleteAsync();
