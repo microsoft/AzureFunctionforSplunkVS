@@ -44,6 +44,7 @@ namespace AzureFunctionForSplunk
             IBinder blobFaultBinder,
             Binder queueFaultBinder,
             IBinder incomingBatchBinder,
+            IAsyncCollector<string> outputEvents,
             ILogger log)
         {
             var batchId = Guid.NewGuid().ToString();
@@ -81,7 +82,7 @@ namespace AzureFunctionForSplunk
 
             if (decomposed.Count > 0)
             {
-                var splunkMsgs = (SplunkEventMessages)Activator.CreateInstance(typeof(T2), log);
+                var splunkMsgs = (SplunkEventMessages)Activator.CreateInstance(typeof(T2), outputEvents, log);
                 try
                 {
                     splunkMsgs.Ingest(decomposed.ToArray());
