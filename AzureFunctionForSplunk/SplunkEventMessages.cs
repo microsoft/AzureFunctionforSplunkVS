@@ -242,7 +242,8 @@ namespace AzureFunctionForSplunk
                     sourceType = Utils.GetDictionaryValue(resourceType.ToUpper() + "/" + category.ToUpper(), Categories) ?? "amdl:diagnostic";
                 }
 
-                if (category != "none")
+                // log categories that aren't yet in the DiagnosticLogCategories.json file.
+                if (category != "none" && sourceType == "amdl:diagnostic")
                 {
                     Log.LogInformation($"{logMessage}, category: {category} *********");
                 }
