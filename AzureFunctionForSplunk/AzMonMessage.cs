@@ -85,7 +85,7 @@ namespace AzureFunctionForSplunk
             unixTimestamp /= TimeSpan.TicksPerSecond;
             return unixTimestamp;
         }
-
+        
         protected void GetStandardProperties()
         {
             string pattern;
@@ -149,7 +149,19 @@ namespace AzureFunctionForSplunk
         public AzMonActivityLog(dynamic message, string sourceType)
         {
             Message = message;
-            ResourceId = message.resourceId;
+
+            if (((IDictionary<String, Object>)message).ContainsKey("resourceId"))
+            {
+                ResourceId = message.resourceId;
+            }
+            else if (((IDictionary<String, Object>)message).ContainsKey("resourceid"))
+            {
+                ResourceId = message.resourceid;
+            }
+            else
+            {
+                throw new Exception("Unable to extract resourceid or resourceId from the message.");
+            }
 
             if (((IDictionary<String, Object>)message).ContainsKey("tenantId"))
             {
@@ -204,7 +216,20 @@ namespace AzureFunctionForSplunk
         public AzMonMetric(dynamic message, string sourceType)
         {
             Message = message;
-            ResourceId = message.resourceId;
+
+            if (((IDictionary<String, Object>)message).ContainsKey("resourceId"))
+            {
+                ResourceId = message.resourceId;
+            }
+            else if (((IDictionary<String, Object>)message).ContainsKey("resourceid"))
+            {
+                ResourceId = message.resourceid;
+            }
+            else
+            {
+                throw new Exception("Unable to extract resourceid or resourceId from the message.");
+            }
+
             SplunkSourceType = sourceType;
             base.GetStandardProperties();
             base.AddStandardProperties("amm");
@@ -216,7 +241,20 @@ namespace AzureFunctionForSplunk
         public LadAzMonMetric(dynamic message)
         {
             Message = message;
-            ResourceId = message.resourceId;
+
+            if (((IDictionary<String, Object>)message).ContainsKey("resourceId"))
+            {
+                ResourceId = message.resourceId;
+            }
+            else if (((IDictionary<String, Object>)message).ContainsKey("resourceid"))
+            {
+                ResourceId = message.resourceid;
+            }
+            else
+            {
+                throw new Exception("Unable to extract resourceid or resourceId from the message.");
+            }
+
             SplunkSourceType = "azlm:compute:vm";
             base.GetStandardProperties();
             base.AddStandardProperties("azlm");
@@ -228,7 +266,20 @@ namespace AzureFunctionForSplunk
         public LadAzMonLog(dynamic message)
         {
             Message = message;
-            ResourceId = message.resourceId;
+
+            if (((IDictionary<String, Object>)message).ContainsKey("resourceId"))
+            {
+                ResourceId = message.resourceId;
+            }
+            else if (((IDictionary<String, Object>)message).ContainsKey("resourceid"))
+            {
+                ResourceId = message.resourceid;
+            }
+            else
+            {
+                throw new Exception("Unable to extract resourceid or resourceId from the message.");
+            }
+
             SplunkSourceType = "azll:compute:vm";
             base.GetStandardProperties();
             base.AddStandardProperties("azll");
