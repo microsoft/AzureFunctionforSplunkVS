@@ -32,6 +32,7 @@ using System.Collections.Generic;
 using System.Dynamic;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using Microsoft.Azure.WebJobs;
 
 namespace AzureFunctionForSplunk
 {
@@ -66,6 +67,7 @@ namespace AzureFunctionForSplunk
 
         public List<AzMonMessage> azureMonitorMessages { get; set; }
         public List<string> splunkEventMessages { get; set; }
+        public IAsyncCollector<string> eventHubOutputEvents { get; set; }
 
         public abstract void Ingest(string[] records);
 
@@ -74,7 +76,7 @@ namespace AzureFunctionForSplunk
             string outputBinding = Utils.getEnvironmentVariable("outputBinding");
             if (outputBinding.Length == 0)
             {
-                Log.LogError("Value for outputBinding is required. Permitted values are: 'proxy', 'hec'.");
+                Log.LogError("Value for outputBinding is required. Permitted values are: 'proxy', 'hec', 'eventhub'.");
                 return;
             }
 
@@ -92,21 +94,25 @@ namespace AzureFunctionForSplunk
                 case "proxy":
                     await Utils.obProxy(splunkEventMessages, Log);
                     break;
+                case "eventhub":
+                    await Utils.obEventhub(splunkEventMessages, eventHubOutputEvents, Log);
+                    break;
             }
 
 
         }
 
-        public SplunkEventMessages(ILogger log)
+        public SplunkEventMessages(IAsyncCollector<string> outputEvents, ILogger log)
         {
             Log = log;
+            eventHubOutputEvents = outputEvents;
             azureMonitorMessages = new List<AzMonMessage>();
         }
     }
 
     public class ActivityLogsSplunkEventMessages: SplunkEventMessages
     {
-        public ActivityLogsSplunkEventMessages(ILogger log): base(log)
+        public ActivityLogsSplunkEventMessages(IAsyncCollector<string> outputEvents, ILogger log): base(outputEvents, log)
         {
             CategoryFileName = "ActivityLogCategories.json";
         }
@@ -197,7 +203,7 @@ namespace AzureFunctionForSplunk
 
     public class DiagnosticLogsSplunkEventMessages : SplunkEventMessages
     {
-        public DiagnosticLogsSplunkEventMessages(ILogger log) : base(log)
+        public DiagnosticLogsSplunkEventMessages(IAsyncCollector<string> outputEvents, ILogger log) : base(outputEvents, log)
         {
             CategoryFileName = "DiagnosticLogCategories.json";
         }
@@ -236,7 +242,8 @@ namespace AzureFunctionForSplunk
                     sourceType = Utils.GetDictionaryValue(resourceType.ToUpper() + "/" + category.ToUpper(), Categories) ?? "amdl:diagnostic";
                 }
 
-                if (category != "none")
+                // log categories that aren't yet in the DiagnosticLogCategories.json file.
+                if (category != "none" && sourceType == "amdl:diagnostic")
                 {
                     Log.LogInformation($"{logMessage}, category: {category} *********");
                 }
@@ -250,7 +257,7 @@ namespace AzureFunctionForSplunk
 
     public class MetricsSplunkEventMessages : SplunkEventMessages
     {
-        public MetricsSplunkEventMessages(ILogger log) : base(log)
+        public MetricsSplunkEventMessages(IAsyncCollector<string> outputEvents, ILogger log) : base(outputEvents, log)
         {
             CategoryFileName = "MetricsCategories.json";
         }
@@ -279,7 +286,7 @@ namespace AzureFunctionForSplunk
 
     public class WadSplunkEventMessages : SplunkEventMessages
     {
-        public WadSplunkEventMessages(ILogger log) : base(log) { }
+        public WadSplunkEventMessages(IAsyncCollector<string> outputEvents, ILogger log) : base(outputEvents, log) { }
 
         public override void Ingest(string[] records)
         {
@@ -303,7 +310,7 @@ namespace AzureFunctionForSplunk
 
     public class LadSplunkEventMessages : SplunkEventMessages
     {
-        public LadSplunkEventMessages(ILogger log) : base(log) { }
+        public LadSplunkEventMessages(IAsyncCollector<string> outputEvents, ILogger log) : base(outputEvents, log) { }
 
         public override void Ingest(string[] records)
         {

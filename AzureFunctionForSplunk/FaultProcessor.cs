@@ -15,13 +15,14 @@ namespace AzureFunctionForSplunk
         [FunctionName("FaultProcessor")]
         public static async Task Run(
             [QueueTrigger("%input-hub-name-faults%", Connection = "AzureWebJobsStorage")]string fault,
+            [EventHub("%output-hub-name-proxy%", Connection = "outputHubConnection")]IAsyncCollector<string> outputEvents,
             IBinder blobFaultBinder,
             ILogger log)
         {
             string outputBinding = Utils.getEnvironmentVariable("outputBinding").ToLower();
             if (outputBinding.Length == 0)
             {
-                log.LogError("Value for outputBinding is required. Permitted values are: 'proxy', 'hec'.");
+                log.LogError("Value for outputBinding is required. Permitted values are: 'proxy', 'hec', 'eventhub'.");
                 return;
             }
 
@@ -43,6 +44,9 @@ namespace AzureFunctionForSplunk
                         break;
                     case "proxy":
                         await Utils.obProxy(faultMessages, log);
+                        break;
+                    case "eventhub":
+                        await Utils.obEventhub(faultMessages, outputEvents, log);
                         break;
                 }
 
