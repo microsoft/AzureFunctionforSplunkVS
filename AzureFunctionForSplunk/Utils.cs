@@ -51,7 +51,7 @@ namespace AzureFunctionForSplunk
     {
         static string splunkCertThumbprint { get; set; }
 
-        public Utils()
+        static Utils()
         {
             splunkCertThumbprint = getEnvironmentVariable("splunkCertThumbprint");
         }
@@ -117,7 +117,16 @@ namespace AzureFunctionForSplunk
 
             static SingleHttpClientInstance()
             {
-                HttpClient = new HttpClient();
+                var handler = new SocketsHttpHandler
+                {
+                    SslOptions = new SslClientAuthenticationOptions
+                    {
+                        RemoteCertificateValidationCallback = ValidateMyCert,
+                        EnabledSslProtocols = System.Security.Authentication.SslProtocols.Tls12
+                    }
+                };
+
+                HttpClient = new HttpClient(handler);
             }
 
             public static async Task<HttpResponseMessage> SendToService(HttpRequestMessage req)
@@ -127,6 +136,20 @@ namespace AzureFunctionForSplunk
             }
         }
 
+        //public static bool ValidateMyCert(object sender, X509Certificate cert, X509Chain chain, SslPolicyErrors sslErr)
+        //{
+        //    // if user has not configured a cert, anything goes
+        //    if (string.IsNullOrWhiteSpace(splunkCertThumbprint))
+        //        return true;
+
+        //    // if user has configured a cert, must match
+        //    var thumbprint = cert.GetCertHashString();
+        //    if (thumbprint == splunkCertThumbprint)
+        //        return true;
+
+        //    return false;
+        //}
+
         public static bool ValidateMyCert(object sender, X509Certificate cert, X509Chain chain, SslPolicyErrors sslErr)
         {
             // if user has not configured a cert, anything goes
@@ -134,7 +157,10 @@ namespace AzureFunctionForSplunk
                 return true;
 
             // if user has configured a cert, must match
-            var thumbprint = cert.GetCertHashString();
+            var numcerts = chain.ChainElements.Count;
+            var cacert = chain.ChainElements[numcerts - 1].Certificate;
+
+            var thumbprint = cacert.GetCertHashString().ToLower();
             if (thumbprint == splunkCertThumbprint)
                 return true;
 
@@ -194,9 +220,9 @@ namespace AzureFunctionForSplunk
                 throw;
             }
 
-            ServicePointManager.Expect100Continue = true;
-            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
-            ServicePointManager.ServerCertificateValidationCallback += new RemoteCertificateValidationCallback(ValidateMyCert);
+            //ServicePointManager.Expect100Continue = true;
+            //ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+            //ServicePointManager.ServerCertificateValidationCallback += new RemoteCertificateValidationCallback(ValidateMyCert);
 
             var client = new SingleHttpClientInstance();
 
@@ -243,9 +269,17 @@ namespace AzureFunctionForSplunk
                 throw new ArgumentException();
             }
 
-            ServicePointManager.Expect100Continue = true;
-            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
-            ServicePointManager.ServerCertificateValidationCallback += new RemoteCertificateValidationCallback(ValidateMyCert);
+            if (!string.IsNullOrWhiteSpace(splunkCertThumbprint))
+            {
+                if (!splunkAddress.ToLower().StartsWith("https"))
+                {
+                    throw new ArgumentException("Having provided a Splunk cert thumbprint, the address must be https://whatever");
+                }
+            }
+
+            //ServicePointManager.Expect100Continue = true;
+            //ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+            //ServicePointManager.ServerCertificateValidationCallback += new RemoteCertificateValidationCallback(ValidateMyCert);
 
             var client = new SingleHttpClientInstance();
             foreach (string item in standardizedEvents)
