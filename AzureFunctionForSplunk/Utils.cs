@@ -25,14 +25,15 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 using Microsoft.Azure.Services.AppAuthentication;
-using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
+using Microsoft.Azure.WebJobs.Host;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
@@ -165,21 +166,6 @@ namespace AzureFunctionForSplunk
                 return true;
 
             return false;
-        }
-
-        public static async Task obEventhub(List<string> standardizedEvents, IAsyncCollector<string> outputEvents, ILogger log)
-        {
-            foreach (string item in standardizedEvents)
-            {
-                try
-                {
-                    await outputEvents.AddAsync(item);
-                }
-                catch (Exception ex)
-                {
-                    throw new System.Exception("Sending to event hub output. Unplanned exception: ", ex);
-                }
-            }
         }
 
         public static async Task obProxy(List<string> standardizedEvents, ILogger log)

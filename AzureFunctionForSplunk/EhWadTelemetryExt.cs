@@ -36,14 +36,13 @@ namespace AzureFunctionForSplunk
         [FunctionName("EhWadTelemetryExt")]
         public static async Task Run(
             [EventHubTrigger("%input-hub-name-wad%", Connection = "hubConnection", ConsumerGroup = "%consumer-group-wad%")]string[] messages,
-            [EventHub("%output-hub-name-proxy%", Connection = "outputHubConnection")]IAsyncCollector<string> outputEvents,
             IBinder blobFaultBinder,
             IBinder incomingBatchBinder,
             Binder queueFaultBinder,
             ILogger log)
         {
             var runner = new Runner();
-            await runner.Run<WadMessages, WadSplunkEventMessages>(messages, blobFaultBinder, queueFaultBinder, incomingBatchBinder, outputEvents, log);
+            await runner.Run<WadMessages, WadSplunkEventMessages>(messages, blobFaultBinder, queueFaultBinder, incomingBatchBinder, log);
         }
     }
 }
