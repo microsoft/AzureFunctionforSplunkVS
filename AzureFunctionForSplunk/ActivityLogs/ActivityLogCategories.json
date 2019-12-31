@@ -4,8 +4,8 @@
   "servicehealth": "amal:serviceHealth",
   "resourcehealth": "amal:resourceHealth",
   "autoscalesettings": "amal:autoscaleSettings",
-  "ascalert": "amal:asc:alert",
+  "ascalert": "amal:ascAlert",
   "insights": "amal:insights",
   "security": "amal:security",
-  "windowseventlogstable":  "wineventlog:security"
+  "windowseventlogstable": "wineventlog:security"
 }

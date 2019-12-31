@@ -1,0 +1,111 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+- master
+
+variables:
+  StorageEndpoint: DefaultEndpointsProtocol=https;AccountName=$(StorageAccount);AccountKey=$(StorageAccountKey)
+  EventhubConnection: Endpoint=$(EventhubEndpoint);SharedAccessKeyName=DataReader;SharedAccessKey=$(EventhubSharedAccessKey)
+
+stages:
+- stage: Build
+  displayName: Build 
+  jobs:  
+  - job: Build
+    displayName: Build
+    
+    pool:
+      name: 'Azure Pipelines'
+      vmImage: 'ubuntu-latest'
+
+    steps:
+    - task: DotNetCoreCLI@2
+      displayName: 'restore'
+      inputs:
+        command: 'restore'
+        feedsToUse: 'select'
+    - task: DotNetCoreCLI@2
+      displayName: 'Build'
+      inputs:
+        projects: '**/*.csproj'
+        arguments: '--configuration release'
+    - task: DotNetCoreCLI@2
+      displayName: 'Test'
+      inputs:
+        command: test
+        projects: '**/*Tests/**/*.csproj'
+        arguments: '--configuration $(buildConfiguration)'
+    - task: DotNetCoreCLI@2
+      displayName: 'publish'
+      inputs:
+        command: 'publish'
+        publishWebProjects: false
+        projects: '**/*.csproj'
+        arguments: '--configuration release --output $(build.artifactstagingdirectory) --no-build'
+    - task: DeleteFiles@1
+      displayName: 'remove test from artifact'
+      inputs:
+        SourceFolder: '$(build.artifactstagingdirectory)'
+        Contents: '*.Test.zip'
+    - task: PublishBuildArtifacts@1
+      displayName: 'Publish Artifact'
+      inputs:
+        PathtoPublish: '$(build.artifactstagingdirectory)'
+        ArtifactName: 'drop'
+
+- stage: Deploy
+  displayName: 'Deploy'
+  dependsOn:
+  - Build
+  condition: succeeded('Build')
+  jobs:
+  - job: DeployCCOE
+    displayName: 'Deploy functions'
+    
+    steps:
+    - download: current
+      artifact: 'drop'
+    - task: AzureFunctionApp@1
+      inputs:
+        azureSubscription: $(ServiceEndpoint)
+        appType: 'functionApp'
+        appName: '$(AppName)'
+        package: '$(Pipeline.Workspace)/**/*.zip'
+        deploymentMethod: 'auto'
+        appSettings: >
+          -AzureWebJobsDashboard "$(StorageEndpoint)" 
+          -AzureWebJobsStorage "$(StorageEndpoint)" 
+          -WEBSITE_CONTENTAZUREFILECONNECTIONSTRING "$(StorageEndpoint)" 
+          -WEBSITE_CONTENTSHARE $(WebsiteContentShare) 
+          -FUNCTIONS_EXTENSION_VERSION "~2" 
+          -WEBSITE_NODE_DEFAULT_VERSION "6.5.0"
+          -APPINSIGHTS_INSTRUMENTATIONKEY "$(InstrumentationKey)" 
+          -hubConnection "$(EventhubConnection)" 
+          -input-hub-name-activity-log "insights-operational-logs" 
+          -consumer-group-activity-log "$Default" 
+          -input-hub-name-security-log "diagnostic-logs-dev" 
+          -consumer-group-security-log "$default" 
+          -input-hub-name-diagnostic-logs "diagnostic-logs-2" 
+          -consumer-group-diagnostic-logs "$default" 
+          -input-hub-name-metrics "insights-metrics-pt1m" 
+          -consumer-group-metrics "$default" 
+          -input-hub-name-wad "insights-telemetry-wad" 
+          -consumer-group-wad "$default" 
+          -input-hub-name-lad "insights-telemetry-lad" 
+          -consumer-group-lad "$default" 
+          -input-hub-name-faults "transmission-faults" 
+          -splunkToken "$(SplunkToken)" 
+          -splunkAddress "$(SplunkEndpoint)" 
+          -outputBinding "hec" 
+          -splunkCertThumbprint "" 
+          -outputHubConnection "Endpoint=sb://YOURNAMESPACE.servicebus.windows.net/;SharedAccessKeyName=YOURPOLICYNAME;SharedAccessKey=YOURPOLICYKEY" 
+          -output-hub-name-proxy "collector-to-proxy" 
+          -AzureWebJobs.EhDiagnosticLogsExt.Disabled "false" 
+          -AzureWebJobs.EhActivityLogsExt.Disabled "false" 
+          -AzureWebJobs.EhMetricsExt.Disabled "false" 
+          -AzureWebJobs.EhSecurityCenterLogsExt.Disabled "false" 
+          -AzureWebJobs.EhLadTelemetryExt.Disabled "true" 
+          -AzureWebJobs.EhWadTelemetryExt.Disabled "true" 

@@ -1,30 +1,4 @@
-﻿//
-// AzureFunctionForSplunkVS
-//
-// Copyright (c) Microsoft Corporation
-//
-// All rights reserved. 
-//
-// MIT License
-//
-// Permission is hereby granted, free of charge, to any person obtaining a copy 
-// of this software and associated documentation files (the ""Software""), to deal 
-// in the Software without restriction, including without limitation the rights 
-// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell 
-// copies of the Software, and to permit persons to whom the Software is furnished 
-// to do so, subject to the following conditions:
-//
-// The above copyright notice and this permission notice shall be included in all 
-// copies or substantial portions of the Software.
-
-// THE SOFTWARE IS PROVIDED *AS IS*, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS 
-// FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR 
-// COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER 
-// IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION 
-// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-using Microsoft.Azure.Services.AppAuthentication;
+﻿using Microsoft.Azure.Services.AppAuthentication;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -38,47 +12,26 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace AzureFunctionForSplunk
+namespace AzureFunctionForSplunk.Common
 {
-    public class TransmissionFaultMessage
-    {
-        public string id { get; set; }
-        public string type { get; set; }
-
-    }
-
     public class Utils
     {
-        static string splunkCertThumbprint { get; set; }
+        private static string splunkCertThumbprint { get; set; }
+        private static string functionAppDirectory { get; set; }
 
         static Utils()
         {
-            splunkCertThumbprint = getEnvironmentVariable("splunkCertThumbprint");
+            splunkCertThumbprint = GetEnvironmentVariable("splunkCertThumbprint");
+            functionAppDirectory = new ExecutionContext().FunctionAppDirectory;
         }
 
-        public static string getEnvironmentVariable(string name)
+        public static string GetEnvironmentVariable(string name)
         {
             var result = System.Environment.GetEnvironmentVariable(name, EnvironmentVariableTarget.Process);
             if (result == null)
                 return "";
 
             return result;
-        }
-
-        public static string getFilename(string basename)
-        {
-
-            var filename = "";
-            var home = getEnvironmentVariable("HOME");
-            if (home.Length == 0)
-            {
-                filename = "../../../" + basename;
-            }
-            else
-            {
-                filename = home + "\\site\\wwwroot\\" + basename;
-            }
-            return filename;
         }
 
         public static Dictionary<string, string> GetDictionary(string filename)
@@ -105,7 +58,8 @@ namespace AzureFunctionForSplunk
             if (dictionary.TryGetValue(key, out value))
             {
                 return value;
-            } else
+            }
+            else
             {
                 return null;
             }
@@ -184,14 +138,14 @@ namespace AzureFunctionForSplunk
 
         public static async Task obProxy(List<string> standardizedEvents, ILogger log)
         {
-            string proxyAddress = Utils.getEnvironmentVariable("proxyAddress");
+            string proxyAddress = Utils.GetEnvironmentVariable("proxyAddress");
             if (proxyAddress.Length == 0)
             {
                 log.LogError("Address of proxy function is required.");
                 throw new ArgumentException();
             }
 
-            string serviceResourceIDURI = Utils.getEnvironmentVariable("serviceResourceIDURI");
+            string serviceResourceIDURI = Utils.GetEnvironmentVariable("serviceResourceIDURI");
             if (serviceResourceIDURI.Length == 0)
             {
                 log.LogError("The AAD service resource ID URI (serviceResourceIDURI) of the proxy app is required.");
@@ -199,10 +153,10 @@ namespace AzureFunctionForSplunk
             }
 
             string astpConnection = "";
-            bool devEnvironment = Utils.getEnvironmentVariable("FUNCTIONS_CORETOOLS_ENVIRONMENT").ToLower() == "true";
+            bool devEnvironment = Utils.GetEnvironmentVariable("FUNCTIONS_CORETOOLS_ENVIRONMENT").ToLower() == "true";
             if (devEnvironment)
             {
-                astpConnection = Utils.getEnvironmentVariable("astpConnectionString");
+                astpConnection = Utils.GetEnvironmentVariable("astpConnectionString");
             }
             // log.LogInformation($"devEnvironment: {devEnvironment}, astpConnection: {astpConnection}");
 
@@ -214,17 +168,12 @@ namespace AzureFunctionForSplunk
                 );
 
                 accessToken = await azureServiceTokenProvider.GetAccessTokenAsync(serviceResourceIDURI);
-            } catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 log.LogError($"Error acquiring token from AzureServiceTokenProvider: {ex.Message}");
                 throw;
             }
-
-            //ServicePointManager.Expect100Continue = true;
-            //ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
-            //ServicePointManager.ServerCertificateValidationCallback += new RemoteCertificateValidationCallback(ValidateMyCert);
-
-            var client = new SingleHttpClientInstance();
 
             StringBuilder bulkTransmission = new StringBuilder();
             foreach (string item in standardizedEvents)
@@ -261,8 +210,8 @@ namespace AzureFunctionForSplunk
 
         public static async Task obHEC(List<string> standardizedEvents, ILogger log)
         {
-            string splunkAddress = Utils.getEnvironmentVariable("splunkAddress");
-            string splunkToken = Utils.getEnvironmentVariable("splunkToken");
+            string splunkAddress = Utils.GetEnvironmentVariable("splunkAddress");
+            string splunkToken = Utils.GetEnvironmentVariable("splunkToken");
             if (splunkAddress.Length == 0 || splunkToken.Length == 0)
             {
                 log.LogError("Values for splunkAddress and splunkToken are required.");
@@ -277,10 +226,7 @@ namespace AzureFunctionForSplunk
                 }
             }
 
-            //ServicePointManager.Expect100Continue = true;
-            //ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
-            //ServicePointManager.ServerCertificateValidationCallback += new RemoteCertificateValidationCallback(ValidateMyCert);
-
+            log.LogInformation($"Sending events count : {standardizedEvents.Count}");
             var client = new SingleHttpClientInstance();
             foreach (string item in standardizedEvents)
             {
@@ -312,6 +258,5 @@ namespace AzureFunctionForSplunk
                 }
             }
         }
-
     }
 }

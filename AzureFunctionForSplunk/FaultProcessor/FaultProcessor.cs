@@ -1,14 +1,14 @@
-using System;
-using System.IO;
+using AzureFunctionForSplunk.Common;
 using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Host;
-using Microsoft.WindowsAzure.Storage.Blob;
-using System.Threading.Tasks;
-using Newtonsoft.Json;
-using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
+using Microsoft.WindowsAzure.Storage.Blob;
+using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Threading.Tasks;
 
-namespace AzureFunctionForSplunk
+namespace AzureFunctionForSplunk.FaultProcessor
 {
     public static class FaultProcessor
     {
@@ -19,7 +19,7 @@ namespace AzureFunctionForSplunk
             IBinder blobFaultBinder,
             ILogger log)
         {
-            string outputBinding = Utils.getEnvironmentVariable("outputBinding").ToLower();
+            string outputBinding = Utils.GetEnvironmentVariable("outputBinding").ToLower();
             if (outputBinding.Length == 0)
             {
                 log.LogError("Value for outputBinding is required. Permitted values are: 'proxy', 'hec', 'eventhub'.");
@@ -42,14 +42,15 @@ namespace AzureFunctionForSplunk
                     case "hec":
                         await Utils.obHEC(faultMessages, log);
                         break;
+
                     case "proxy":
                         await Utils.obProxy(faultMessages, log);
                         break;
+
                     case "eventhub":
                         await Utils.obEventhub(faultMessages, outputEvents, log);
                         break;
                 }
-
             }
             catch (Exception ex)
             {

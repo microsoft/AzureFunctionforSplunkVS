@@ -1,9 +1,21 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.28307.705
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29509.3
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AzureFunctionForSplunk", "AzureFunctionForSplunk\AzureFunctionForSplunk.csproj", "{70EE11BD-9CAF-432C-97B7-3F4B11E7A2A8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AzureFunctionForSplunk", "AzureFunctionForSplunk\AzureFunctionForSplunk.csproj", "{70EE11BD-9CAF-432C-97B7-3F4B11E7A2A8}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Support", "Support", "{D24253E0-980E-42C7-8DB6-62D4631B3DF9}"
+	ProjectSection(SolutionItems) = preProject
+		.gitattributes = .gitattributes
+		.gitignore = .gitignore
+		azure-pipelines.yml = azure-pipelines.yml
+		README.md = README.md
+	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AzureFunctionForSplunk.Test", "Tests\AzureFunctionForSplunk.Test\AzureFunctionForSplunk.Test.csproj", "{26FE656F-AAEA-48F9-AFC2-8B75D10B2D62}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{9ABB33DF-1183-4CFC-BA43-2EEF658861B7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,9 +27,16 @@ Global
 		{70EE11BD-9CAF-432C-97B7-3F4B11E7A2A8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{70EE11BD-9CAF-432C-97B7-3F4B11E7A2A8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{70EE11BD-9CAF-432C-97B7-3F4B11E7A2A8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{26FE656F-AAEA-48F9-AFC2-8B75D10B2D62}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{26FE656F-AAEA-48F9-AFC2-8B75D10B2D62}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{26FE656F-AAEA-48F9-AFC2-8B75D10B2D62}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{26FE656F-AAEA-48F9-AFC2-8B75D10B2D62}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{26FE656F-AAEA-48F9-AFC2-8B75D10B2D62} = {9ABB33DF-1183-4CFC-BA43-2EEF658861B7}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {63CE4300-29B2-405B-9FE3-A9BEB03D9C11}

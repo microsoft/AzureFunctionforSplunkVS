@@ -1,0 +1,5 @@
+﻿{
+  "administrative": "ascl:administrative",
+  "recommendations": "ascl:recommendation",
+  "alerts": "ascl:alerts"
+}
