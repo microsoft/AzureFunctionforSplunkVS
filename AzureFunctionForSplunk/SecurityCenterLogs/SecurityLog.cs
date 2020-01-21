@@ -25,43 +25,27 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 using AzureFunctionForSplunk.Common;
-using System;
 using System.Collections.Generic;
-using System.Text.RegularExpressions;
 
-namespace AzureFunctionForSplunk.ActivityLogs
+namespace AzureFunctionForSplunk.SecurityCenterLogs
 {
-    public class AzMonActivityLog : AzMonMessage
+    public class SecurityLog : AzMonMessage
     {
-        public AzMonActivityLog(dynamic message, string sourceType)
+        public SecurityLog(dynamic message)
         {
             Message = message;
 
-            if (((IDictionary<String, Object>)message).ContainsKey("resourceId"))
+            if (((IDictionary<string, object>)message).ContainsKey("AzureResourceId"))
             {
-                ResourceId = message.resourceId;
-            }
-            else if (((IDictionary<String, Object>)message).ContainsKey("resourceid"))
-            {
-                ResourceId = message.resourceid;
+                ResourceId = message.AzureResourceId;
             }
             else
             {
-                throw new Exception("Unable to extract resourceid or resourceId from the message.");
+                ResourceId = message.properties.resourceDetails.id;
             }
 
-            if (((IDictionary<String, Object>)message).ContainsKey("tenantId"))
-            {
-                TenantId = message.tenantId;
-
-                var pattern = @"PROVIDERS/(.*?)(?:$)";
-                Match m = Regex.Match(ResourceId.ToUpper(), pattern);
-                ProviderName = m.Groups[1].Value;
-            }
-
-            SplunkSourceType = sourceType;
             base.GetStandardProperties();
-            base.AddStandardProperties("amal");
+            base.AddStandardProperties("ascl");
         }
     }
 }

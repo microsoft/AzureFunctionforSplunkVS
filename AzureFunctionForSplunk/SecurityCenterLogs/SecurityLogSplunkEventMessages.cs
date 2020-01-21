@@ -49,7 +49,7 @@ namespace AzureFunctionForSplunk.SecurityCenterLogs
                 var expandoConverter = new ExpandoObjectConverter();
                 var expandoRecord = JsonConvert.DeserializeObject<ExpandoObject>(record, expandoConverter);
 
-                var message = new AzSecurityLog(expandoRecord);
+                var message = new SecurityLog(expandoRecord);
 
                 var productName = "none";
                 if (((IDictionary<string, object>)expandoRecord).ContainsKey("ProductName"))
