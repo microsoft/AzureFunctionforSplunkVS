@@ -29,7 +29,7 @@ using System.Collections.Generic;
 using System.Dynamic;
 using System.Text.RegularExpressions;
 
-namespace AzureFunctionForSplunk
+namespace splunkmoodys
 {
     public class AzMonMessage
     {
